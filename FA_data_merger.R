@@ -20,7 +20,7 @@ FAmerger<-function(dirs.list)
     data<-data[!is.na(data$X),]
     data<-merge(X,data, all.y=T)
     data<-data[,c(1,3,6)]
-    colnames(data)<-c("Peak", paste("Reten",strsplit(substr(dirs.list[i],1,3), "[^0-9]+"), sep=""), paste("Area",strsplit(substr(dirs.list[i],1,3), "[^0-9]+"),sep=""))
+    colnames(data)<-c("Peak", paste("Reten_",dirs.list[i], sep=""), paste("Area",dirs.list[i],sep=""))
     reports[[i]]<-data
   }
   
