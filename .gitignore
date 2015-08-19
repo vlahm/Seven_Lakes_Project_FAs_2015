@@ -3,3 +3,5 @@
 *.docx
 /GC readouts/
 *.Rhistory
+/Misc/
+/PCA_arrangements/

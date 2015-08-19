@@ -39,6 +39,10 @@ FAmerger<-function(dirs.list)
   merged[[newCol]]<-FA.frequency
   colnames(merged)[newCol]<-"total_appearances"
   
+  #add informative prependix
+  prependix<-read.csv("C:/Users/Mike/Desktop/Grad/Projects/Thesis/Seven Lakes Project 2014/Data/FA/Misc/prependix.csv")
+  merged<-merge(merged,prependix,all=T)
+  
   return(merged)
 }
 
