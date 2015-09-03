@@ -1,6 +1,7 @@
-setwd("C:/Users/Mike/Desktop/Grad/Projects/Thesis/Seven Lakes Project 2014/Data/FA/PCA_arrangements")
+# setwd("C:/Users/Mike/Desktop/Grad/Projects/Thesis/Seven Lakes Project 2014/Data/FA/PCA_arrangements")
 library(vegan)
 
+####functions####
 #FISH560 functions
 pca.eigenval <-
   function(x.pca,dim=length(x.pca$sdev),digits=7){
@@ -39,7 +40,7 @@ pca.eigenvec <-
   function(x.pca,dim=length(x.pca$sdev),
            digits=7,cutoff=0){
     
-    #check for dim limit	
+    #check for dim limit  
     if(dim>ncol(x.pca$rotation)){
       cat("Only",ncol(x.pca$rotation),"axes available\n")
       dim<-ncol(x.pca$rotation)
@@ -159,7 +160,7 @@ ordi.monte <-
         abline(v=z.eig[i],col=col.line,lty=lty,lwd=2,...)
         readline("Press return for next plot ")
       }
-    }	
+    }  
     
     cat('Randomization Test of Eigenvalues:\n')
     z<-rbind('Eigenvalue'=z.eig,'P-value'=p.value)
@@ -168,72 +169,102 @@ ordi.monte <-
     return(z)
   }
 
-FA_PCAer<-function(csv.name, ordi.monte=F)
-{
-  #read in the FAs and samples you want to test
-  csv<-read.csv(csv.name)
-  
-  #find number and indices of columns containing Areal data
-  Nsamp<-length(grep("Area",colnames(csv)))
-  samp.ind<-grep("Area",colnames(csv))
-  proportional.area<-matrix(data=NA, nrow=length(csv[,1]), ncol=Nsamp)
-  
-  #create matrix of proportional area
-  for(i in 1:Nsamp)
-  {
-    col<-csv[,samp.ind[i]]
-    total.area<-sum(na.omit(col))
-    for(j in 1:length(col))
-    {
-      proportional.area[j,i]<-(col[j]*100)/total.area #find out why i and j are being created as objects
-    }
-    NAs<-which(is.na(proportional.area[,i]))
-    proportional.area[,i][NAs]<-0.0000001
-  }
-  proportional.area<-cbind(csv[,2:5],proportional.area)
-  colnames(proportional.area)[5:length(proportional.area[1,])]<-gsub("Reten_", "", colnames(csv)[grep("Reten", colnames(csv))])
-  row.names(proportional.area)<-csv[,1]
-  
-  #the PCA...
-  transposed<-t(as.matrix(proportional.area[,-(1:4)]))
-  pca<-prcomp(transposed,scale=T, scores=T)
+####FA_PCAer####
+
+############NOTICE
+#this version of FA_PCAer should be set up to calculate percent_area correctly
+#(based on the overall total from each sample, rather than just the subsample used in
+#the PCA.  However, the spreadsheets have not been set up to run the analysis.  
+#This vein of the project was abandoned in favor of FA groupings.  
+
+# FA_PCAer<-function(FA.subset, all.FAs, ordi.monte=F)
+# {
+#   #read in the FAs and samples you want to test
+#   subset<-read.csv(FA.subset)
+#   all<-read.csv(all.FAs) #this is necessary for computing proportional areas
+#   
+#   #find number and indices of columns containing Areal data
+#   Nsamp<-length(grep("Area",colnames(subset)))
+#   samp.ind<-grep("Area",colnames(subset))
+#   proportional.area<-matrix(data=NA, nrow=length(subset[,1]), ncol=Nsamp)
+#   
+#   #create matrix of proportional area
+#   for(i in 1:Nsamp)
+#   {
+#     subset.col<-subset[,samp.ind[i]]
+#     all.col<-all[,samp.ind[i]]
+#     total.area<-sum(na.omit(all.col))
+#     for(j in 1:length(subset.col))
+#     {
+#       proportional.area[j,i]<-(subset.col[j]*100)/total.area #find out why i and j are being created as objects
+#     }
+#     NAs<-which(is.na(proportional.area[,i]))
+#     proportional.area[,i][NAs]<-0.0000001
+#   }
+#   proportional.area<-cbind(subset[,2:5],proportional.area)
+#   colnames(proportional.area)[5:length(proportional.area[1,])]<-gsub("Reten_", "", colnames(csv)[grep("Reten", colnames(csv))])
+#   row.names(proportional.area)<-subset[,1]
+#   
+#   #the PCA...
+#   transposed<-t(as.matrix(proportional.area[,-(1:4)]))
+#   pca<-prcomp(transposed,scale=T, scores=T)
+#   #determine eigenvalues
+#   eigenvalues<-pca.eigenval(pca)
+#   #see which eigenvalues are significant
+#   screeplot(pca, bstick=T)
+#   #do that a different way
+#   if(ordi.monte==T)
+#   {
+#     ordimonte<-o
+#   }
+#   #see loadings.  square these to get percentage of variance in each original variable
+#   #accounted for by each principal component
+#   structure<-pca.structure(pca,transposed,dim=7,cutoff=0.2)
+#   #sample.scores<-pca$x[,1:7]
+#   #first plotting method
+#   biplot(pca)
+#   #second plotting method
+#   ordiplot(pca,choices=c(1,2), type="text", display="sites")
+#   arrows(0,0,pca$rotation[,1]*5, pca$rotation[,2]*5, col="red")
+#   text(pca$rotation[,1]*5.2, pca$rotation[,2]*5.2, row.names(pca$rotation))
+#   
+#   if(ordi.monte==T)
+#   {
+#     details<-list(eigenvalues[,1:7], ordimonte, structure)
+#   }
+#   else
+#   {
+#     details<-list(eigenvalues[,1:7], structure)
+#   }
+#   return(details)
+# }
+# 
+# FA_PCAer("1_allConsumers_FAoverPointFive.csv", )
+# FA_PCAer("2_allConsumers_FAoverPointSeven.csv")
+# FA_PCAer("4_caddisonly_29FAs.csv")
+# FA_PCAer("5_caddisonly_20FAs.csv")
+# FA_PCAer("6_calonly_43FAs.csv")
+# FA_PCAer("7_cladonly_28FAs.csv")
+
+####Grouped PCAs####
+
+setwd("C:/Users/Mike/Desktop/Grad/Projects/Thesis/Seven Lakes Project 2014/Data/FA/PCA_arrangements")
+raw.calanoid<-read.csv("8_cal_grouped.csv")
+calanoid<-t(raw.calanoid[,-(1:2)])
+colnames(calanoid)<-raw.calanoid[,1]
+
+cal.pca<-prcomp(calanoid,scale=T, scores=T)
   #determine eigenvalues
-  eigenvalues<-pca.eigenval(pca)
+  eigenvalues<-pca.eigenval(cal.pca)
   #see which eigenvalues are significant
-  screeplot(pca, bstick=T)
-  #do that a different way
-  if(ordi.monte==T)
-  {
-    ordimonte<-o
-  }
+  screeplot(cal.pca, bstick=T)
   #see loadings.  square these to get percentage of variance in each original variable
   #accounted for by each principal component
-  structure<-pca.structure(pca,transposed,dim=7,cutoff=0.2)
-  #sample.scores<-pca$x[,1:7]
+  structure<-pca.structure(cal.pca,calanoid,dim=7,cutoff=0.2)
+  #sample.scores<-cal.pca$x[,1:7]
   #first plotting method
-  biplot(pca)
+  biplot(cal.pca)
   #second plotting method
-  ordiplot(pca,choices=c(1,2), type="text", display="sites")
-  arrows(0,0,pca$rotation[,1]*5, pca$rotation[,2]*5, col="red")
-  text(pca$rotation[,1]*5.2, pca$rotation[,2]*5.2, row.names(pca$rotation))
-  
-  if(ordi.monte==T)
-  {
-    details<-list(eigenvalues[,1:7], ordimonte, structure)
-  }
-  else
-  {
-    details<-list(eigenvalues[,1:7], structure)
-  }
-  return(details)
-}
-
-FA_PCAer("1_allConsumers_FAoverPointFive.csv")
-FA_PCAer("2_allConsumers_FAoverPointSeven.csv")
-FA_PCAer("4_caddisonly_29FAs.csv")
-FA_PCAer("5_caddisonly_20FAs.csv")
-FA_PCAer("6_calonly_43FAs.csv")
-FA_PCAer("7_cladonly_28FAs.csv")
-
-
-
+  ordiplot(cal.pca,choices=c(1,2), type="text", display="sites")
+  arrows(0,0,cal.pca$rotation[,1]*5, cal.pca$rotation[,2]*5, col="blue")
+  text(cal.pca$rotation[,1]*5.2, cal.pca$rotation[,2]*5.2, row.names(cal.pca$rotation))
