@@ -1,7 +1,9 @@
 # setwd("C:/Users/Mike/Desktop/Grad/Projects/Thesis/Seven Lakes Project 2014/Data/FA/PCA_arrangements")
+
+####functions and packages####
+library(vioplot)
 library(vegan)
 
-####functions####
 #FISH560 functions
 pca.eigenval <-
   function(x.pca,dim=length(x.pca$sdev),digits=7){
@@ -246,25 +248,118 @@ ordi.monte <-
 # FA_PCAer("6_calonly_43FAs.csv")
 # FA_PCAer("7_cladonly_28FAs.csv")
 
-####Grouped PCAs####
+####Grouped PCAs - Calanoid####
 
 setwd("C:/Users/Mike/Desktop/Grad/Projects/Thesis/Seven Lakes Project 2014/Data/FA/PCA_arrangements")
+
 raw.calanoid<-read.csv("8_cal_grouped.csv")
 calanoid<-t(raw.calanoid[,-(1:2)])
 colnames(calanoid)<-raw.calanoid[,1]
 
 cal.pca<-prcomp(calanoid,scale=T, scores=T)
-  #determine eigenvalues
-  eigenvalues<-pca.eigenval(cal.pca)
-  #see which eigenvalues are significant
-  screeplot(cal.pca, bstick=T)
-  #see loadings.  square these to get percentage of variance in each original variable
-  #accounted for by each principal component
-  structure<-pca.structure(cal.pca,calanoid,dim=7,cutoff=0.2)
-  #sample.scores<-cal.pca$x[,1:7]
-  #first plotting method
-  biplot(cal.pca)
-  #second plotting method
-  ordiplot(cal.pca,choices=c(1,2), type="text", display="sites")
-  arrows(0,0,cal.pca$rotation[,1]*5, cal.pca$rotation[,2]*5, col="blue")
-  text(cal.pca$rotation[,1]*5.2, cal.pca$rotation[,2]*5.2, row.names(cal.pca$rotation))
+#determine eigenvalues
+pca.eigenval(cal.pca)
+#see which eigenvalues are significant
+screeplot(cal.pca, bstick=T)
+#see loadings.  square these to get percentage of variance in each original variable
+#accounted for by each principal component
+pca.structure(cal.pca,calanoid,dim=7,cutoff=0.2)
+#sample.scores<-cal.pca$x[,1:7]
+#first plotting method
+biplot(cal.pca, main="calanoid")
+#second plotting method
+ordiplot(cal.pca,choices=c(1,2), type="text", display="sites", main="Calanoid")
+arrows(0,0,cal.pca$rotation[,1]*5, cal.pca$rotation[,2]*5, col="blue")
+text(cal.pca$rotation[,1]*5.2, cal.pca$rotation[,2]*5.2, row.names(cal.pca$rotation), col="blue")
+
+#comparison of distributions:
+vioplot(calanoid[1,], calanoid[2,], calanoid[3,], calanoid[4,], calanoid[5,], 
+        calanoid[6,], calanoid[7,], calanoid[8,], calanoid[9,], calanoid[10,], names=(rownames(calanoid)))
+
+#Caddis####
+
+raw.caddis<-read.csv("9_caddis_grouped.csv")
+caddis<-t(raw.caddis[,-(1:2)])
+colnames(caddis)<-raw.caddis[,1]
+
+caddis.pca<-prcomp(caddis,scale=T, scores=T)
+#determine eigenvalues
+pca.eigenval(caddis.pca)
+#see which eigenvalues are significant
+screeplot(caddis.pca, bstick=T)
+#see loadings.  square these to get percentage of variance in each original variable
+#accounted for by each principal component
+pca.structure(caddis.pca,caddis,dim=7,cutoff=0.2)
+#sample.scores<-caddis.pca$x[,1:7]
+#first plotting method
+biplot(caddis.pca, main="caddis")
+#second plotting method
+ordiplot(caddis.pca,choices=c(1,2), type="text", display="sites", main="Caddisfly", ylim=c(-3,3))
+arrows(0,0,caddis.pca$rotation[,1]*4, caddis.pca$rotation[,2]*4, col="blue")
+text(caddis.pca$rotation[,1]*4.2, caddis.pca$rotation[,2]*4.2, row.names(caddis.pca$rotation), col="blue")
+
+#comparison of distributions.  Do they seem to differ in the same way that the calanoid ones do?
+vioplot(caddis[1,], caddis[2,], caddis[3,], caddis[4,], caddis[5,], 
+        caddis[6,], caddis[7,], caddis[8,], caddis[9,], caddis[10,], 
+        caddis[11,], names=(rownames(caddis)))
+
+# rows<-rep(1:11, times=length(caddis[1,]))
+# cols<-rep(1:7, each=length(caddis[,1]))
+# counts<-round(stack(as.data.frame(caddis))[,1]*10000) #can only use integers in contingency tables, so here's
+# #a "conversion" to integers that allows some retention of sigdigs.
+# ctgcy<-as.data.frame(cbind(counts,rows,cols))
+# ctgcy[,2]<-factor(ctgcy[,2])
+# ctgcy[,3]<-factor(ctgcy[,3])
+
+
+#Cladocera####
+
+raw.clado<-read.csv("10_clado_grouped.csv")
+clado<-t(raw.clado[,-(1:2)])
+colnames(clado)<-raw.clado[,1]
+
+clado.pca<-prcomp(clado,scale=T, scores=T)
+#determine eigenvalues
+pca.eigenval(clado.pca)
+#see which eigenvalues are significant
+screeplot(clado.pca, bstick=T)
+#see loadings.  square these to get percentage of variance in each original variable
+#accounted for by each principal component
+pca.structure(clado.pca,clado,dim=7,cutoff=0.2)
+#sample.scores<-clado.pca$x[,1:7]
+#first plotting method
+biplot(clado.pca, main="cladocera")
+#second plotting method
+ordiplot(clado.pca,choices=c(1,2), type="text", display="sites", main="Cladocera", ylim=c(-3,3))
+arrows(0,0,clado.pca$rotation[,1]*5, clado.pca$rotation[,2]*5, col="blue")
+text(clado.pca$rotation[,1]*5.2, clado.pca$rotation[,2]*5.2, row.names(clado.pca$rotation), col="blue")
+
+#comparison of distributions
+vioplot(clado[1,], clado[2,], clado[3,], clado[4,], clado[5,], 
+        clado[6,], names=(rownames(clado)))
+
+#Cladocera and chaoborus####
+
+raw.cc<-read.csv("11_cladANDchaob_grouped.csv")
+cc<-t(raw.cc[,-(1:2)])
+colnames(cc)<-raw.cc[,1]
+
+cc.pca<-prcomp(cc,scale=T, scores=T)
+#determine eigenvalues
+pca.eigenval(cc.pca)
+#see which eigenvalues are significant
+screeplot(cc.pca, bstick=T)
+#see loadings.  square these to get percentage of variance in each original variable
+#accounted for by each principal component
+pca.structure(cc.pca,cc,dim=7,cutoff=0.2)
+#sample.scores<-cc.pca$x[,1:7]
+#first plotting method
+biplot(cc.pca, main="clad + chaob")
+#second plotting method
+ordiplot(cc.pca,choices=c(1,2), type="text", display="sites", main="Cladocera + Chaoborus", ylim=c(-3,3))
+arrows(0,0,cc.pca$rotation[,1]*5, cc.pca$rotation[,2]*5, col="blue")
+text(cc.pca$rotation[,1]*5.2, cc.pca$rotation[,2]*5.2, row.names(cc.pca$rotation), col="blue")
+
+#comparison of distributions
+vioplot(cc[1,], cc[2,], cc[3,], cc[4,], cc[5,], 
+        cc[6,], cc[7,], cc[8,], names=(rownames(cc)))
