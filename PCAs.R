@@ -311,7 +311,6 @@ vioplot(caddis[1,], caddis[2,], caddis[3,], caddis[4,], caddis[5,],
 # ctgcy[,2]<-factor(ctgcy[,2])
 # ctgcy[,3]<-factor(ctgcy[,3])
 
-
 #Cladocera####
 
 raw.clado<-read.csv("10_clado_grouped.csv")
@@ -363,3 +362,50 @@ text(cc.pca$rotation[,1]*5.2, cc.pca$rotation[,2]*5.2, row.names(cc.pca$rotation
 #comparison of distributions
 vioplot(cc[1,], cc[2,], cc[3,], cc[4,], cc[5,], 
         cc[6,], cc[7,], cc[8,], names=(rownames(cc)))
+
+####all together - ignore first collapsed section####
+setwd("C:/Users/Mike/Desktop/Grad/Projects/Thesis/Seven Lakes Project 2014/Data/FA/PCA_arrangements/misc spreadsheets")
+all<-read.csv("4a_all_samples_unprocessed.csv")
+
+#store the first five columns (info columns)
+info.cols<-all[,1:5]
+#remove spacer column
+#not necessary yet
+
+#create matrix of relative area of each FA in each sample
+area.cols<-grep("Area", colnames(all))
+proportional.area<-matrix(data=NA, nrow=length(all[,1]), ncol=length(area.cols))
+for(i in 1:length(area.cols))
+{
+  working.col<-all[,area.cols[i]]
+  total.area<-sum(na.omit(working.col))
+  for(j in 1:length(working.col))
+  {
+    proportional.area[j,i]<-(working.col[j]*100)/total.area
+  }
+}
+
+#replace column names with IDs (ID key here: "C:\Users\Mike\Desktop\Grad\Projects\Thesis\Seven Lakes Project 2014\Data\FA\PCA_arrangements\ID_key.csv")
+#first three digits = sample number, next one is lake type, last two are organism type
+IDs<-c("i001215", "i002215", "i003103", "i004103", "i006303", "i007203", "i008403", "i009403", "i010203", "011i203", "i012103", "i013120",
+       "i090120", "i092303", "i108120", "i094220", "i085220", "i086220", "i087220", "i080317", "i096120", "i081318", "i082320", "i083420", "i084418", 
+       "i093118", "i105320", "i106317", "i097118", "i091118", "i095118", "i017111", "i032110", "i029410", "i034210", "i041108", "i044308", "i048308",
+       "i051208", "i054408", "i064108", "i071109", "i07300f", "i07400b", "i07500h", "i07600s", "i07700c", "i109107")
+colnames(proportional.area)<-IDs
+
+#identify columns with no data / 1 datum
+# rowSums(is.na(proportional.area)) == 48
+# rowSums(is.na(proportional.area)) == 47
+
+#combine FAs according to biomarker classes
+#switching to Excel
+
+write.csv(proportional.area, "C:/Users/Mike/Desktop/Grad/Projects/Thesis/Seven Lakes Project 2014/Data/FA/PCA_arrangements/misc spreadsheets/4b_converted_to_rel.csv")
+
+#added sorting columns in excel
+setwd("C:/Users/Mike/Desktop/Grad/Projects/Thesis/Seven Lakes Project 2014/Data/FA/PCA_arrangements")
+data<-read.csv("ultimate_spreadsheet.csv")
+colnames(data)[18:65]<-IDs
+
+#figure out why this doesn't work
+short_SAFA<-data[,c(1:5, 18:65)][data$short_SAFA==1]
