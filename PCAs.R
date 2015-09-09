@@ -8,8 +8,8 @@
 #To run the analysis in its final form, you'll need to run the material in 
 #part 0 - functions and packages.  Then start with part 8.
 
-# setwd("C:/Users/Mike/Desktop/Grad/Projects/Thesis/Seven Lakes Project 2014/Data/FA/PCA_arrangements")
-
+#run this block
+setwd("C:/Users/Mike/Desktop/Grad/Projects/Thesis/Seven Lakes Project 2014/Data/FA/PCA_arrangements")
 ####0 -functions and packages####
 library(vioplot)
 library(vegan)
@@ -257,7 +257,6 @@ ordi.monte <-
 # FA_PCAer("5_caddisonly_20FAs.csv")
 # FA_PCAer("6_calonly_43FAs.csv")
 # FA_PCAer("7_cladonly_28FAs.csv")
-
 #2 - Inefficient Method (1 of 3) Grouped PCAs - probably ignore - Calanoid####
 
 setwd("C:/Users/Mike/Desktop/Grad/Projects/Thesis/Seven Lakes Project 2014/Data/FA/PCA_arrangements")
@@ -285,7 +284,6 @@ text(cal.pca$rotation[,1]*5.2, cal.pca$rotation[,2]*5.2, row.names(cal.pca$rotat
 #comparison of distributions:
 vioplot(calanoid[1,], calanoid[2,], calanoid[3,], calanoid[4,], calanoid[5,], 
         calanoid[6,], calanoid[7,], calanoid[8,], calanoid[9,], calanoid[10,], names=(rownames(calanoid)))
-
 #3 - Caddis####
 
 raw.caddis<-read.csv("9_caddis_grouped.csv")
@@ -321,7 +319,6 @@ vioplot(caddis[1,], caddis[2,], caddis[3,], caddis[4,], caddis[5,],
 # ctgcy<-as.data.frame(cbind(counts,rows,cols))
 # ctgcy[,2]<-factor(ctgcy[,2])
 # ctgcy[,3]<-factor(ctgcy[,3])
-
 #4 - Cladocera####
 
 raw.clado<-read.csv("10_clado_grouped.csv")
@@ -347,7 +344,6 @@ text(clado.pca$rotation[,1]*5.2, clado.pca$rotation[,2]*5.2, row.names(clado.pca
 #comparison of distributions
 vioplot(clado[1,], clado[2,], clado[3,], clado[4,], clado[5,], 
         clado[6,], names=(rownames(clado)))
-
 #5 - Cladocera and chaoborus####
 
 raw.cc<-read.csv("11_cladANDchaob_grouped.csv")
@@ -373,7 +369,6 @@ text(cc.pca$rotation[,1]*5.2, cc.pca$rotation[,2]*5.2, row.names(cc.pca$rotation
 #comparison of distributions
 vioplot(cc[1,], cc[2,], cc[3,], cc[4,], cc[5,], 
         cc[6,], cc[7,], cc[8,], names=(rownames(cc)))
-
 #6 - all together####
 setwd("C:/Users/Mike/Desktop/Grad/Projects/Thesis/Seven Lakes Project 2014/Data/FA/PCA_arrangements/misc spreadsheets")
 all<-read.csv("4a_all_samples_unprocessed.csv")
@@ -412,7 +407,6 @@ colnames(proportional.area)<-IDs
 #switching to Excel
 
 write.csv(proportional.area, "C:/Users/Mike/Desktop/Grad/Projects/Thesis/Seven Lakes Project 2014/Data/FA/PCA_arrangements/misc spreadsheets/4b_converted_to_rel.csv")
-
 #7 - all together - semi-efficient Method (2 of 3)####
 #added sorting columns in excel
 setwd("C:/Users/Mike/Desktop/Grad/Projects/Thesis/Seven Lakes Project 2014/Data/FA/PCA_arrangements")
@@ -549,14 +543,14 @@ legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
 legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
        fill=c(1, 2, 3, 4, 5))
 
-####8 - efficient method (3 of 3)####
+####8 - PCA functions, etc. (Method 3 of 3)####
 
 #combined POM and peri samples in Excel
 data<-read.csv("ultimate_spreadsheet_POMandPeriCombinedLakes.csv")
-IDs<-c("i001215", "i002215", "i003103", "i004103", "i006303", "i007203", "i008403", "i009403", "i010203", "011i203", "i012103", "i013120",
-       "i090120", "i092303", "i108120", "i094220", "i085220", "i086220", "i087220", "i080317", "i096120", "i081301", "i082320", "i083420", "i084401", 
-       "i093101", "i105320", "i106317", "i097101", "i091101", "i095101", "i017111", "i000504", "i000508", "i071109", "i000514", "i109107")
-colnames(data)[16:52]<-IDs
+# IDs<-c("i001215", "i002215", "i003103", "i004103", "i006303", "i007203", "i008403", "i009403", "i010403", "i011203", "i012203", "i013103",
+#        "i090120", "i092120", "i108303", "i094120", "i085220", "i086220", "i087220", "i080317", "i096120", "i081301", "i082320", "i083420", "i084401", 
+#        "i093101", "i105320", "i106317", "i097101", "i091101", "i095101", "i017111", "i000504", "i000508", "i071109", "i000514", "i109107")
+# colnames(data)[16:52]<-IDs
 
 cal.cols<-grep("20", substr(colnames(data),6,7))
 clad.cols<-grep("01", substr(colnames(data),6,7))
@@ -570,27 +564,149 @@ moss.cols<-grep("07", substr(colnames(data),6,7))
 soil.cols<-grep("09", substr(colnames(data),6,7))
 plant.cols<-grep("14", substr(colnames(data),6,7))
 
+dist.data<-data
+for (i in 1:length(dist.data[1,16:52]))
+{
+  for (j in 1:length(dist.data[,16]))
+  {
+    if (is.na(dist.data[,16:52][j,i])==T)
+    {
+      dist.data[,16:52][j,i]<-0.000001
+    }
+  }
+}
 ####9 - Calanoid####
 #create groupings
 short_SAFA<-data[data$short_SAFA==1,c(1:5, cal.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
-short_SAFA<-colSums(short_SAFA[,6:22], na.rm=T)
+short_SAFA<-colSums(short_SAFA[,6:21], na.rm=T)
 iSAFA_etc<-data[data$iSAFA_etc==1,c(1:5, cal.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
-iSAFA_etc<-colSums(iSAFA_etc[,6:22], na.rm=T)
+iSAFA_etc<-colSums(iSAFA_etc[,6:21], na.rm=T)
 other_MUFA<-data[data$other_MUFA==1,c(1:5, cal.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
-other_MUFA<-colSums(other_MUFA[,6:22], na.rm=T)
+other_MUFA<-colSums(other_MUFA[,6:21], na.rm=T)
 LIN<-data[data$LIN==1,c(1:5, cal.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
-LIN<-colSums(LIN[,6:22], na.rm=T)
+LIN<-colSums(LIN[,6:21], na.rm=T)
 other_n3_n6_PUFA<-data[data$other_n3_n6_PUFA==1,c(1:5, cal.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
-other_n3_n6_PUFA<-colSums(other_n3_n6_PUFA[,6:22], na.rm=T)
+other_n3_n6_PUFA<-colSums(other_n3_n6_PUFA[,6:21], na.rm=T)
 OA_16.4n3<-data[data$OA_16.4n3==1,c(1:5, cal.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
-OA_16.4n3<-colSums(OA_16.4n3[,6:22], na.rm=T)
+OA_16.4n3<-colSums(OA_16.4n3[,6:21], na.rm=T)
 ALA_SDA<-data[data$ALA_SDA==1,c(1:5, cal.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
-ALA_SDA<-colSums(ALA_SDA[,6:22], na.rm=T)
+ALA_SDA<-colSums(ALA_SDA[,6:21], na.rm=T)
 long_SAFA<-data[data$long_SAFA==1,c(1:5, cal.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
-long_SAFA<-colSums(long_SAFA[,6:22], na.rm=T)
+long_SAFA<-colSums(long_SAFA[,6:21], na.rm=T)
 EPA_DHA<-data[data$EPA_DHA==1,c(1:5, cal.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
-EPA_DHA<-colSums(EPA_DHA[,6:22], na.rm=T)
+EPA_DHA<-colSums(EPA_DHA[,6:21], na.rm=T)
 other_PUFA<-data[data$other_PUFA==1,c(1:5, cal.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
+other_PUFA<-colSums(other_PUFA[,6:21], na.rm=T)
+
+#grouping 1
+grouped<-rbind(short_SAFA, iSAFA_etc, other_MUFA, LIN, other_n3_n6_PUFA, OA_16.4n3,
+               ALA_SDA, long_SAFA, EPA_DHA, other_PUFA)
+#grouping 2 (removed "other_MUFA" and "Other PUFA")
+# grouped<-rbind(short_SAFA, iSAFA_etc, LIN, other_n3_n6_PUFA, OA_16.4n3,
+#                ALA_SDA, long_SAFA, EPA_DHA)
+
+#modify the data
+for (i in 1:length(grouped[1,]))
+{
+  for (j in 1:length(grouped[,1]))
+  {
+    #replace zeros with small values
+    if (grouped[j,i]==0)
+    {
+      grouped[j,i]<-0.000001
+    }
+    #put data on proportional scale (0-1) and arc-sin square root transform them
+    grouped[j,i]<-asin(sqrt(grouped[j,i]/100))*(2/pi)
+  }
+}
+
+tgrouped<-t(as.matrix(grouped))
+cal.pca<-prcomp(tgrouped,scale=T, scores=T)
+#determine eigenvalues
+eigenvalues<-pca.eigenval(cal.pca)
+#see which eigenvalues are significant
+screeplot(cal.pca, bstick=T)
+#see loadings.  square these to get percentage of variance in each original variable
+#accounted for by each principal component
+structure<-pca.structure(cal.pca,tgrouped,dim=7,cutoff=0.2)
+#sample.scores<-cal.pca$x[,1:7]
+#first and second principal components
+cal.fig<-ordiplot(cal.pca, choices=c(1,2), type="none", xlim=c(-6,3), ylim=c(-5,4), main="Cal PC1 and 2")
+points(cal.fig, "sites", pch=as.numeric(substr(row.names(tgrouped),6,7)), col=as.numeric(substr(row.names(tgrouped),5,5)))
+arrows(0,0,cal.pca$rotation[,1]*5, cal.pca$rotation[,2]*5, col="black")
+text(cal.pca$rotation[,1]*5.8, cal.pca$rotation[,2]*5.8, row.names(cal.pca$rotation))
+legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
+                           "fish", "POM", "periphyton", "filamentous", "moss", 
+                           "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
+                                                            11, 7, 9, 14))
+legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
+       fill=c(1, 2, 3, 4, 5))
+
+
+#plotting 3rd and 4th principal components
+cal.fig<-ordiplot(cal.pca, choices=c(3,4), type="none", xlim=c(-4,4), ylim=c(-4,4), main="Cal PC3 and 4")
+points(cal.fig, "sites", pch=as.numeric(substr(row.names(tgrouped),6,7)), col=as.numeric(substr(row.names(tgrouped),5,5)))
+arrows(0,0,cal.pca$rotation[,3]*5, cal.pca$rotation[,4]*5, col="black")
+text(cal.pca$rotation[,3]*5.8, cal.pca$rotation[,4]*5.8, row.names(cal.pca$rotation))
+legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
+                           "fish", "POM", "periphyton", "filamentous", "moss", 
+                           "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
+                                                            11, 7, 9, 14))
+legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
+       fill=c(1, 2, 3, 4, 5))
+
+#are there obvious differences among the frequency distributions?
+
+# #vio.data is the same as dist.data
+# vioplot(vio.data[,cal.cols[1]], vio.data[,cal.cols[2]], vio.data[,cal.cols[3]], vio.data[,cal.cols[4]], vio.data[,cal.cols[5]], 
+#         vio.data[,cal.cols[6]], vio.data[,cal.cols[7]], vio.data[,cal.cols[8]], vio.data[,cal.cols[9]], vio.data[,cal.cols[10]], 
+#         names=(colnames(vio.data[,cal.cols])), h=3, wex=1)
+
+par(mar=c(0,5,0,0))
+par(mfrow=c(10,1))
+for(i in 1:10)
+{
+  if (substr(colnames(dist.data[cal.cols[i]]),5,5)==1)
+  {
+    plot(dist.data[,cal.cols[i]], type="l", ylab=colnames(dist.data[cal.cols[i]]), xlab="", col="blue")
+  }  
+  else if (substr(colnames(dist.data[cal.cols[i]]),5,5)==2)
+  {
+    plot(dist.data[,cal.cols[i]], type="l", ylab=colnames(dist.data[cal.cols[i]]), xlab="", col="red")
+  } 
+  else if (substr(colnames(dist.data[cal.cols[i]]),5,5)==3)
+  {
+    plot(dist.data[,cal.cols[i]], type="l", ylab=colnames(dist.data[cal.cols[i]]), xlab="", col="black")
+  }
+  else if (substr(colnames(dist.data[cal.cols[i]]),5,5)==4)
+  {
+    plot(dist.data[,cal.cols[i]], type="l", ylab=colnames(dist.data[cal.cols[i]]), xlab="", col="green")
+  }
+}
+par(mar=c(4,4,4,4))
+par(mfrow=c(1,1))
+####10 - Caddisfly####
+
+#create groupings
+short_SAFA<-data[data$short_SAFA==1,c(1:5, caddis.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
+short_SAFA<-colSums(short_SAFA[,6:22], na.rm=T)
+iSAFA_etc<-data[data$iSAFA_etc==1,c(1:5, caddis.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
+iSAFA_etc<-colSums(iSAFA_etc[,6:22], na.rm=T)
+other_MUFA<-data[data$other_MUFA==1,c(1:5, caddis.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
+other_MUFA<-colSums(other_MUFA[,6:22], na.rm=T)
+LIN<-data[data$LIN==1,c(1:5, caddis.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
+LIN<-colSums(LIN[,6:22], na.rm=T)
+other_n3_n6_PUFA<-data[data$other_n3_n6_PUFA==1,c(1:5, caddis.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
+other_n3_n6_PUFA<-colSums(other_n3_n6_PUFA[,6:22], na.rm=T)
+OA_16.4n3<-data[data$OA_16.4n3==1,c(1:5, caddis.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
+OA_16.4n3<-colSums(OA_16.4n3[,6:22], na.rm=T)
+ALA_SDA<-data[data$ALA_SDA==1,c(1:5, caddis.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
+ALA_SDA<-colSums(ALA_SDA[,6:22], na.rm=T)
+long_SAFA<-data[data$long_SAFA==1,c(1:5, caddis.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
+long_SAFA<-colSums(long_SAFA[,6:22], na.rm=T)
+EPA_DHA<-data[data$EPA_DHA==1,c(1:5, caddis.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
+EPA_DHA<-colSums(EPA_DHA[,6:22], na.rm=T)
+other_PUFA<-data[data$other_PUFA==1,c(1:5, caddis.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
 other_PUFA<-colSums(other_PUFA[,6:22], na.rm=T)
 
 #grouping 1
@@ -608,128 +724,84 @@ for (i in 1:length(grouped[1,]))
     if (grouped[j,i]==0)
     {
       grouped[j,i]<-0.000001
+      #put data on proportional scale (0-1) and arc-sin square root transform them
+      grouped[j,i]<-asin(sqrt(grouped[j,i]/100))*(2/pi)
     }
   }
 }
 
-#PCA, ignoring "other_PUFA" (which has many zeros and is not very informative;
-#note that it could be combined with "other_n3_n6_PUFA", which also has a lot of zeros.)
-
 tgrouped<-t(as.matrix(grouped))
-pca<-prcomp(tgrouped,scale=T, scores=T)
+caddis.pca<-prcomp(tgrouped,scale=T, scores=T)
 #determine eigenvalues
-eigenvalues<-pca.eigenval(pca)
+eigenvalues<-pca.eigenval(caddis.pca)
 #see which eigenvalues are significant
-screeplot(pca, bstick=T)
+screeplot(caddis.pca, bstick=T)
 #see loadings.  square these to get percentage of variance in each original variable
 #accounted for by each principal component
-structure<-pca.structure(pca,tgrouped,dim=7,cutoff=0.2)
-#sample.scores<-pca$x[,1:7]
+structure<-pca.structure(caddis.pca,tgrouped,dim=7,cutoff=0.2)
+#sample.scores<-caddis.pca$x[,1:7]
+
 #first and second principal components
-fig1<-ordiplot(pca, choices=c(1,2), type="none", xlim=c(-4,5), ylim=c(-4,4))
-points(fig1, "sites", pch=as.numeric(substr(row.names(tgrouped),6,7)), col=as.numeric(substr(row.names(tgrouped),5,5)))
-arrows(0,0,pca$rotation[,1]*5, pca$rotation[,2]*5, col="black")
-text(pca$rotation[,1]*5.8, pca$rotation[,2]*5.8, row.names(pca$rotation))
-legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
+caddis.fig<-ordiplot(caddis.pca, choices=c(1,2), type="none", xlim=c(-5,3), ylim=c(-6,3), main="Caddis PC1 and 2")
+points(caddis.fig, "sites", pch=as.numeric(substr(row.names(tgrouped),6,7)), col=as.numeric(substr(row.names(tgrouped),5,5)))
+arrows(0,0,caddis.pca$rotation[,1]*5, caddis.pca$rotation[,2]*5, col="black")
+text(caddis.pca$rotation[,1]*5.8, caddis.pca$rotation[,2]*5.8, row.names(caddis.pca$rotation))
+legend("bottomleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
                            "fish", "POM", "periphyton", "filamentous", "moss", 
                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
                                                             11, 7, 9, 14))
-legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
+legend("bottomright", legend=c("puddles", "high", "milk+clear", "big", "combined"),
        fill=c(1, 2, 3, 4, 5))
 
 
-#plotting 3rd and 4th principal components
-fig1<-ordiplot(pca, choices=c(3,4), type="none", xlim=c(-4,5), ylim=c(-4,4))
-points(fig1, "sites", pch=as.numeric(substr(row.names(tgrouped),6,7)), col=as.numeric(substr(row.names(tgrouped),5,5)))
-arrows(0,0,pca$rotation[,3]*5, pca$rotation[,4]*5, col="black")
-text(pca$rotation[,3]*5.8, pca$rotation[,4]*5.8, row.names(pca$rotation))
-legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
+#plotting 2nd and 3rd principal components
+caddis.fig<-ordiplot(caddis.pca, choices=c(2,3), type="none", xlim=c(-5,3), ylim=c(-4,3), main="Caddis PC2 and 3")
+points(caddis.fig, "sites", pch=as.numeric(substr(row.names(tgrouped),6,7)), col=as.numeric(substr(row.names(tgrouped),5,5)))
+arrows(0,0,caddis.pca$rotation[,2]*5, caddis.pca$rotation[,3]*5, col="black")
+text(caddis.pca$rotation[,2]*5.8, caddis.pca$rotation[,3]*5.8, row.names(caddis.pca$rotation))
+legend("bottomleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
                            "fish", "POM", "periphyton", "filamentous", "moss", 
                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
                                                             11, 7, 9, 14))
-legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
+legend("bottomright", legend=c("puddles", "high", "milk+clear", "big", "combined"),
        fill=c(1, 2, 3, 4, 5))
 
-####10 - Caddisfly####
-#create groupings
-short_SAFA<-data[data$short_SAFA==1,c(1:5, caddis.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
-short_SAFA<-colSums(short_SAFA[,6:21], na.rm=T)
-iSAFA_etc<-data[data$iSAFA_etc==1,c(1:5, caddis.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
-iSAFA_etc<-colSums(iSAFA_etc[,6:21], na.rm=T)
-other_MUFA<-data[data$other_MUFA==1,c(1:5, caddis.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
-other_MUFA<-colSums(other_MUFA[,6:21], na.rm=T)
-LIN<-data[data$LIN==1,c(1:5, caddis.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
-LIN<-colSums(LIN[,6:21], na.rm=T)
-other_n3_n6_PUFA<-data[data$other_n3_n6_PUFA==1,c(1:5, caddis.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
-other_n3_n6_PUFA<-colSums(other_n3_n6_PUFA[,6:21], na.rm=T)
-OA_16.4n3<-data[data$OA_16.4n3==1,c(1:5, caddis.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
-OA_16.4n3<-colSums(OA_16.4n3[,6:21], na.rm=T)
-ALA_SDA<-data[data$ALA_SDA==1,c(1:5, caddis.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
-ALA_SDA<-colSums(ALA_SDA[,6:21], na.rm=T)
-long_SAFA<-data[data$long_SAFA==1,c(1:5, caddis.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
-long_SAFA<-colSums(long_SAFA[,6:21], na.rm=T)
-EPA_DHA<-data[data$EPA_DHA==1,c(1:5, caddis.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
-EPA_DHA<-colSums(EPA_DHA[,6:21], na.rm=T)
-other_PUFA<-data[data$other_PUFA==1,c(1:5, caddis.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
-other_PUFA<-colSums(other_PUFA[,6:21], na.rm=T)
+#plotting 1st and 3rd principal components
+caddis.fig<-ordiplot(caddis.pca, choices=c(1,3), type="none", xlim=c(-5,3), ylim=c(-4,3), main="Caddis PC1 and 3")
+points(caddis.fig, "sites", pch=as.numeric(substr(row.names(tgrouped),6,7)), col=as.numeric(substr(row.names(tgrouped),5,5)))
+arrows(0,0,caddis.pca$rotation[,1]*5, caddis.pca$rotation[,3]*5, col="black")
+text(caddis.pca$rotation[,1]*5.8, caddis.pca$rotation[,3]*5.8, row.names(caddis.pca$rotation))
+legend("bottomleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
+                              "fish", "POM", "periphyton", "filamentous", "moss", 
+                              "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
+                                                               11, 7, 9, 14))
+legend("bottomright", legend=c("puddles", "high", "milk+clear", "big", "combined"),
+       fill=c(1, 2, 3, 4, 5))
 
-#grouping 1
-grouped<-rbind(short_SAFA, iSAFA_etc, other_MUFA, LIN, other_n3_n6_PUFA, OA_16.4n3,
-               ALA_SDA, long_SAFA, EPA_DHA, other_PUFA)
-#grouping 2 (removed "other_MUFA" and "Other PUFA"
-# grouped<-rbind(short_SAFA, iSAFA_etc, LIN, other_n3_n6_PUFA, OA_16.4n3,
-#                ALA_SDA, long_SAFA, EPA_DHA)
-
-#replace zeros with small values
-for (i in 1:length(grouped[1,]))
+#are there obvious differences among the frequency distributions?
+par(mar=c(0,5,0,0))
+par(mfrow=c(11,1))
+for(i in 1:11)
 {
-  for (j in 1:length(grouped[,1]))
+  if (substr(colnames(dist.data[caddis.cols[i]]),5,5)==1)
   {
-    if (grouped[j,i]==0)
-    {
-      grouped[j,i]<-0.000001
-    }
+    plot(dist.data[,caddis.cols[i]], type="l", ylab=colnames(dist.data[caddis.cols[i]]), xlab="", col="blue")
+  }  
+  else if (substr(colnames(dist.data[caddis.cols[i]]),5,5)==2)
+  {
+    plot(dist.data[,caddis.cols[i]], type="l", ylab=colnames(dist.data[caddis.cols[i]]), xlab="", col="red")
+  } 
+  else if (substr(colnames(dist.data[caddis.cols[i]]),5,5)==3)
+  {
+    plot(dist.data[,caddis.cols[i]], type="l", ylab=colnames(dist.data[caddis.cols[i]]), xlab="", col="black")
+  }
+  else if (substr(colnames(dist.data[caddis.cols[i]]),5,5)==4)
+  {
+    plot(dist.data[,caddis.cols[i]], type="l", ylab=colnames(dist.data[caddis.cols[i]]), xlab="", col="green")
   }
 }
-
-#PCA, ignoring "other_PUFA" (which has many zeros and is not very informative;
-#note that it could be combined with "other_n3_n6_PUFA", which also has a lot of zeros.)
-
-tgrouped<-t(as.matrix(grouped))
-pca<-prcomp(tgrouped,scale=T, scores=T)
-#determine eigenvalues
-eigenvalues<-pca.eigenval(pca)
-#see which eigenvalues are significant
-screeplot(pca, bstick=T)
-#see loadings.  square these to get percentage of variance in each original variable
-#accounted for by each principal component
-structure<-pca.structure(pca,tgrouped,dim=7,cutoff=0.2)
-#sample.scores<-pca$x[,1:7]
-#first and second principal components
-fig1<-ordiplot(pca, choices=c(1,2), type="none", xlim=c(-4,5), ylim=c(-4,4))
-points(fig1, "sites", pch=as.numeric(substr(row.names(tgrouped),6,7)), col=as.numeric(substr(row.names(tgrouped),5,5)))
-arrows(0,0,pca$rotation[,1]*5, pca$rotation[,2]*5, col="black")
-text(pca$rotation[,1]*5.8, pca$rotation[,2]*5.8, row.names(pca$rotation))
-legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
-                           "fish", "POM", "periphyton", "filamentous", "moss", 
-                           "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
-                                                            11, 7, 9, 14))
-legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
-       fill=c(1, 2, 3, 4, 5))
-
-
-#plotting 3rd and 4th principal components
-fig1<-ordiplot(pca, choices=c(3,4), type="none", xlim=c(-4,5), ylim=c(-4,4))
-points(fig1, "sites", pch=as.numeric(substr(row.names(tgrouped),6,7)), col=as.numeric(substr(row.names(tgrouped),5,5)))
-arrows(0,0,pca$rotation[,3]*5, pca$rotation[,4]*5, col="black")
-text(pca$rotation[,3]*5.8, pca$rotation[,4]*5.8, row.names(pca$rotation))
-legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
-                           "fish", "POM", "periphyton", "filamentous", "moss", 
-                           "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
-                                                            11, 7, 9, 14))
-legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
-       fill=c(1, 2, 3, 4, 5))
-
+par(mar=c(4,4,4,4))
+par(mfrow=c(1,1))
 ####11 - Cladocera####
 #create groupings
 short_SAFA<-data[data$short_SAFA==1,c(1:5, clad.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
@@ -768,28 +840,27 @@ for (i in 1:length(grouped[1,]))
     if (grouped[j,i]==0)
     {
       grouped[j,i]<-0.000001
+      #put data on proportional scale (0-1) and arc-sin square root transform them
+      grouped[j,i]<-asin(sqrt(grouped[j,i]/100))*(2/pi)
     }
   }
 }
 
-#PCA, ignoring "other_PUFA" (which has many zeros and is not very informative;
-#note that it could be combined with "other_n3_n6_PUFA", which also has a lot of zeros.)
-
 tgrouped<-t(as.matrix(grouped))
-pca<-prcomp(tgrouped,scale=T, scores=T)
+clad.pca<-prcomp(tgrouped,scale=T, scores=T)
 #determine eigenvalues
-eigenvalues<-pca.eigenval(pca)
+eigenvalues<-pca.eigenval(clad.pca)
 #see which eigenvalues are significant
-screeplot(pca, bstick=T)
+screeplot(clad.pca, bstick=T)
 #see loadings.  square these to get percentage of variance in each original variable
 #accounted for by each principal component
-structure<-pca.structure(pca,tgrouped,dim=7,cutoff=0.2)
-#sample.scores<-pca$x[,1:7]
+structure<-pca.structure(clad.pca,tgrouped,dim=7,cutoff=0.2)
+#sample.scores<-clad.pca$x[,1:7]
 #first and second principal components
-fig1<-ordiplot(pca, choices=c(1,2), type="none", xlim=c(-4,5), ylim=c(-4,5))
-points(fig1, "sites", pch=as.numeric(substr(row.names(tgrouped),6,7)), col=as.numeric(substr(row.names(tgrouped),5,5)))
-arrows(0,0,pca$rotation[,1]*5, pca$rotation[,2]*5, col="black")
-text(pca$rotation[,1]*5.8, pca$rotation[,2]*5.8, row.names(pca$rotation))
+clad.fig<-ordiplot(clad.pca, choices=c(1,2), type="none", xlim=c(-4,5), ylim=c(-4,5), main="Cladocera PC1 and 2")
+points(clad.fig, "sites", pch=as.numeric(substr(row.names(tgrouped),6,7)), col=as.numeric(substr(row.names(tgrouped),5,5)))
+arrows(0,0,clad.pca$rotation[,1]*5, clad.pca$rotation[,2]*5, col="black")
+text(clad.pca$rotation[,1]*5.8, clad.pca$rotation[,2]*5.8, row.names(clad.pca$rotation))
 legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
                            "fish", "POM", "periphyton", "filamentous", "moss", 
                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
@@ -799,10 +870,10 @@ legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"
 
 
 #plotting 3rd and 4th principal components
-fig1<-ordiplot(pca, choices=c(3,4), type="none", xlim=c(-4,5), ylim=c(-4,4))
-points(fig1, "sites", pch=as.numeric(substr(row.names(tgrouped),6,7)), col=as.numeric(substr(row.names(tgrouped),5,5)))
-arrows(0,0,pca$rotation[,3]*5, pca$rotation[,4]*5, col="black")
-text(pca$rotation[,3]*5.8, pca$rotation[,4]*5.8, row.names(pca$rotation))
+clad.fig<-ordiplot(clad.pca, choices=c(3,4), type="none", xlim=c(-4,5), ylim=c(-4,4), main="Cladocera PC3 and 4")
+points(clad.fig, "sites", pch=as.numeric(substr(row.names(tgrouped),6,7)), col=as.numeric(substr(row.names(tgrouped),5,5)))
+arrows(0,0,clad.pca$rotation[,3]*5, clad.pca$rotation[,4]*5, col="black")
+text(clad.pca$rotation[,3]*5.8, clad.pca$rotation[,4]*5.8, row.names(clad.pca$rotation))
 legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
                            "fish", "POM", "periphyton", "filamentous", "moss", 
                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
@@ -810,6 +881,30 @@ legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
 legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
        fill=c(1, 2, 3, 4, 5))
 
+#are there obvious differences among the frequency distributions?
+par(mar=c(0,5,0,0))
+par(mfrow=c(6,1))
+for(i in 1:6)
+{
+  if (substr(colnames(dist.data[clad.cols[i]]),5,5)==1)
+  {
+    plot(dist.data[,clad.cols[i]], type="l", ylab=colnames(dist.data[clad.cols[i]]), xlab="", col="blue")
+  }  
+  else if (substr(colnames(dist.data[clad.cols[i]]),5,5)==2)
+  {
+    plot(dist.data[,clad.cols[i]], type="l", ylab=colnames(dist.data[clad.cols[i]]), xlab="", col="red")
+  } 
+  else if (substr(colnames(dist.data[clad.cols[i]]),5,5)==3)
+  {
+    plot(dist.data[,clad.cols[i]], type="l", ylab=colnames(dist.data[clad.cols[i]]), xlab="", col="black")
+  }
+  else if (substr(colnames(dist.data[clad.cols[i]]),5,5)==4)
+  {
+    plot(dist.data[,clad.cols[i]], type="l", ylab=colnames(dist.data[clad.cols[i]]), xlab="", col="green")
+  }
+}
+par(mar=c(4,4,4,4))
+par(mfrow=c(1,1))
 ####12 - All####
 
 short_SAFA<-data[data$short_SAFA==1,c(1:5, cal.cols, fish.cols, caddis.cols, clad.cols, chaob.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
@@ -848,28 +943,27 @@ for (i in 1:length(grouped[1,]))
     if (grouped[j,i]==0)
     {
       grouped[j,i]<-0.000001
+      #put data on proportional scale (0-1) and arc-sin square root transform them
+      grouped[j,i]<-asin(sqrt(grouped[j,i]/100))*(2/pi)
     }
   }
 }
 
-#PCA, ignoring "other_PUFA" (which has many zeros and is not very informative;
-#note that it could be combined with "other_n3_n6_PUFA", which also has a lot of zeros.)
-
 tgrouped<-t(as.matrix(grouped))
-pca<-prcomp(tgrouped,scale=T, scores=T)
+all.pca<-prcomp(tgrouped,scale=T, scores=T)
 #determine eigenvalues
-eigenvalues<-pca.eigenval(pca)
+eigenvalues<-pca.eigenval(all.pca)
 #see which eigenvalues are significant
-screeplot(pca, bstick=T)
+screeplot(all.pca, bstick=T)
 #see loadings.  square these to get percentage of variance in each original variable
 #accounted for by each principal component
-structure<-pca.structure(pca,tgrouped,dim=7,cutoff=0.2)
-#sample.scores<-pca$x[,1:7]
+structure<-pca.structure(all.pca,tgrouped,dim=7,cutoff=0.2)
+#sample.scores<-all.pca$x[,1:7]
 #first and second principal components
-fig1<-ordiplot(pca, choices=c(1,2), type="none", xlim=c(-4,5), ylim=c(-4,4))
-points(fig1, "sites", pch=as.numeric(substr(row.names(tgrouped),6,7)), col=as.numeric(substr(row.names(tgrouped),5,5)))
-arrows(0,0,pca$rotation[,1]*5, pca$rotation[,2]*5, col="black")
-text(pca$rotation[,1]*5.8, pca$rotation[,2]*5.8, row.names(pca$rotation))
+all.fig<-ordiplot(all.pca, choices=c(1,2), type="none", xlim=c(-4,5), ylim=c(-4,4), main="All PC1 and 2")
+points(all.fig, "sites", pch=as.numeric(substr(row.names(tgrouped),6,7)), col=as.numeric(substr(row.names(tgrouped),5,5)))
+arrows(0,0,all.pca$rotation[,1]*5, all.pca$rotation[,2]*5, col="black")
+text(all.pca$rotation[,1]*5.8, all.pca$rotation[,2]*5.8, row.names(all.pca$rotation))
 legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
                            "fish", "POM", "periphyton", "filamentous", "moss", 
                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
@@ -879,10 +973,10 @@ legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"
 
 
 # #plotting 3rd and 4th principal components
-# fig1<-ordiplot(pca, choices=c(3,4), type="none", xlim=c(-4,5), ylim=c(-4,4))
-# points(fig1, "sites", pch=as.numeric(substr(row.names(tgrouped),6,7)), col=as.numeric(substr(row.names(tgrouped),5,5)))
-# arrows(0,0,pca$rotation[,3]*5, pca$rotation[,4]*5, col="black")
-# text(pca$rotation[,3]*5.8, pca$rotation[,4]*5.8, row.names(pca$rotation))
+# all.fig<-ordiplot(all.pca, choices=c(3,4), type="none", xlim=c(-4,5), ylim=c(-4,4), main="All PC1 and 2")
+# points(all.fig, "sites", pch=as.numeric(substr(row.names(tgrouped),6,7)), col=as.numeric(substr(row.names(tgrouped),5,5)))
+# arrows(0,0,all.pca$rotation[,3]*5, all.pca$rotation[,4]*5, col="black")
+# text(all.pca$rotation[,3]*5.8, all.pca$rotation[,4]*5.8, row.names(all.pca$rotation))
 # legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
 #                            "fish", "POM", "periphyton", "filamentous", "moss", 
 #                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
@@ -890,3 +984,128 @@ legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"
 # legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
 #        fill=c(1, 2, 3, 4, 5))
 # 
+
+#are there obvious differences among the frequency distributions?
+par(mar=c(0,5,0,0))
+par(mfrow=c(6,1))
+for(i in 1:6)
+{
+  if (substr(colnames(dist.data[clad.cols[i]]),5,5)==1)
+  {
+    plot(dist.data[,clad.cols[i]], type="l", ylab=colnames(dist.data[clad.cols[i]]), xlab="", col="blue")
+  }  
+  else if (substr(colnames(dist.data[clad.cols[i]]),5,5)==2)
+  {
+    plot(dist.data[,clad.cols[i]], type="l", ylab=colnames(dist.data[clad.cols[i]]), xlab="", col="red")
+  } 
+  else if (substr(colnames(dist.data[clad.cols[i]]),5,5)==3)
+  {
+    plot(dist.data[,clad.cols[i]], type="l", ylab=colnames(dist.data[clad.cols[i]]), xlab="", col="black")
+  }
+  else if (substr(colnames(dist.data[clad.cols[i]]),5,5)==4)
+  {
+    plot(dist.data[,clad.cols[i]], type="l", ylab=colnames(dist.data[clad.cols[i]]), xlab="", col="green")
+  }
+}
+par(mar=c(4,4,4,4))
+par(mfrow=c(1,1))
+
+####13 - NMDS functions - must run PCAs before corresponding NMDSs will work####
+nmds.scree <-
+  function(x,distance='bray',k=6,trymax=50,
+           autotransform=FALSE,trace=0,...){
+    
+    library(vegan)
+    library(MASS)
+    
+    old.par<-par(no.readonly=TRUE)
+    
+    nmds.stress<-rep(0,k)
+    nmds.dim<-c(1:k)
+    for(i in 1:k){
+      y<-metaMDS(x,distance=distance,k=i,trymax=trymax,
+                 autotransform=autotransform,trace=trace,...)
+      nmds.stress[i]<-y$stress
+    }
+    plot(nmds.dim,nmds.stress,type='o',pch=19,col='blue',
+         ylab='Stress',xlab='Ordination Axis',
+         main='Scree Plot of Stress vs. Dimension',...)
+    
+    par(old.par)
+  }
+
+nmds.monte <-
+  function(x,k,distance='bray',trymax=50,autotransform=FALSE,
+           trace=0,zerodist='add',perm=100,col.hist='blue',col.line='red',
+           lty=2,las=1,lab=c(5,5,4),...){
+    
+    library(vegan)
+    library(MASS)
+    
+    z<-metaMDS(comm=x,k=k,distance=distance,trymax=trymax,
+               autotransform=autotransform,trace=trace,...) #nmds analysis
+    z.stress<-z$stress #get stress
+    y.stress<-rep(0,perm)
+    
+    for(i in 1:perm){
+      y<-apply(x,2,sample) #permute data matrix
+      y<-metaMDS(comm=y,k=k,distance=distance,trymax=trymax,
+                 autotransform=autotransform,trace=trace,...) #nmds analysis
+      y.stress[i]<-y$stress #get stress
+    }
+    n<-sum(y.stress<=z.stress) #compute number of random runs with stress < observed
+    p.value<-(1+n)/(1+perm) #compute p-value
+    
+    xmin<-min(z.stress,min(y.stress))
+    xmax<-max(z.stress,max(y.stress))
+    hist(y.stress,col=col.hist,las=las,lab=lab,
+         xaxs='i',yaxs='i',xlim=c(xmin,xmax),xlab='Stress',
+         main=paste('Random Permutation Distribution of Stress for',k,'Dimensions',sep=' '),...)
+    abline(v=z.stress,col=col.line,lty=lty,lwd=2,...)
+    
+    cat('Randomization Test of Stress:\n')
+    cat('Permutation stress values:\n')
+    print(y.stress)
+    z<-rbind('Observed stress'=z.stress,'P-value'=p.value)
+    return(z)
+  }
+####14 - NMDS Calanoid ####
+
+#this permorms the NMDS
+cal.nmds<-metaMDS(tgrouped, distance="bray", k=3, trymax=20, autotransform=F)
+
+#not sure how scree or stressplot are used here, but keep trying the monte until you have a
+#managable number of dimensions and the last addition removes considerable stress.
+nmds.scree(tgrouped, distance="bray", k=10, autotransform=F, trymax=20)
+nmds.monte(tgrouped, distance="bray", k=3, autotransform=F, trymax=20)
+#based on the monte, 3 is the correct number of dimensions to consider
+stressplot(cal.nmds)
+
+#gangster plotting
+# plot(cal.nmds, type="n")
+# text(cal.nmds, labels=row.names(tgrouped))
+
+#sample scores
+cal.sample.scores<-cal.nmds$points
+
+#calculate loadings (variable weights) on each NMDS axis
+#these determine which FAs can be used to interpret the positions
+#of the samples in ordination space.
+cal.loadings<-envfit(cal.nmds$points, tgrouped, perm=1000)
+
+#plot loadings on ordination plot
+ordiplot(cal.nmds, choices=c(1,2), type="text", display="sites")
+plot.envfit(cal.loadings, p.max=.05, col="blue") #this function doesn't exist?
+
+#combining clustering and ordination?
+cal.d<-vegdist(tgrouped, "bray")
+cal.ward<-hclust(cal.d, method="ward")
+cal.class<-cutree(cal.ward, k=3)
+cal.groups<-levels(factor(cal.class))
+cal.site<-scores(cal.nmds)
+ordiplot(cal.site, type="n", main="Cal NMDS + Clustering") #error here
+for (i in 1:length(cal.groups))
+{
+  points(cal.site[cal.class==i,], pch=(14+i), cex=2, col=i+1)
+}
+text(cal.site, row.names(#??????
