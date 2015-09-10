@@ -8,11 +8,15 @@
 #To run the analysis in its final form, you'll need to run the material in 
 #part 0 - functions and packages.  Then start with part 8.
 
+#optional
+dev.off()
+windows(record=T) #navigate plots in this separate window using PgUp and PgDn
 #run this block
 setwd("C:/Users/Mike/Desktop/Grad/Projects/Thesis/Seven Lakes Project 2014/Data/FA/PCA_arrangements")
 ####0 -functions and packages####
 library(vioplot)
 library(vegan)
+library(plyr)
 
 #FISH560 functions
 pca.eigenval <-
@@ -599,40 +603,41 @@ other_PUFA<-data[data$other_PUFA==1,c(1:5, cal.cols, POM.cols, peri.cols, fil.co
 other_PUFA<-colSums(other_PUFA[,6:21], na.rm=T)
 
 #grouping 1
-grouped<-rbind(short_SAFA, iSAFA_etc, other_MUFA, LIN, other_n3_n6_PUFA, OA_16.4n3,
+cal.grouped<-rbind(short_SAFA, iSAFA_etc, other_MUFA, LIN, other_n3_n6_PUFA, OA_16.4n3,
                ALA_SDA, long_SAFA, EPA_DHA, other_PUFA)
 #grouping 2 (removed "other_MUFA" and "Other PUFA")
-# grouped<-rbind(short_SAFA, iSAFA_etc, LIN, other_n3_n6_PUFA, OA_16.4n3,
+# cal.grouped<-rbind(short_SAFA, iSAFA_etc, LIN, other_n3_n6_PUFA, OA_16.4n3,
 #                ALA_SDA, long_SAFA, EPA_DHA)
 
 #modify the data
-for (i in 1:length(grouped[1,]))
+for (i in 1:length(cal.grouped[1,]))
 {
-  for (j in 1:length(grouped[,1]))
+  for (j in 1:length(cal.grouped[,1]))
   {
     #replace zeros with small values
-    if (grouped[j,i]==0)
+    if (cal.grouped[j,i]==0)
     {
-      grouped[j,i]<-0.000001
+      cal.grouped[j,i]<-0.000001
     }
     #put data on proportional scale (0-1) and arc-sin square root transform them
-    grouped[j,i]<-asin(sqrt(grouped[j,i]/100))*(2/pi)
+    cal.asin.grouped<-cal.grouped
+    cal.asin.grouped[j,i]<-asin(sqrt(cal.asin.grouped[j,i]/100))*(2/pi)
   }
 }
 
-tgrouped<-t(as.matrix(grouped))
-cal.pca<-prcomp(tgrouped,scale=T, scores=T)
+tcal.asin.grouped<-t(as.matrix(cal.asin.grouped))
+cal.pca<-prcomp(tcal.asin.grouped,scale=T, scores=T)
 #determine eigenvalues
 eigenvalues<-pca.eigenval(cal.pca)
 #see which eigenvalues are significant
 screeplot(cal.pca, bstick=T)
 #see loadings.  square these to get percentage of variance in each original variable
 #accounted for by each principal component
-structure<-pca.structure(cal.pca,tgrouped,dim=7,cutoff=0.2)
+structure<-pca.structure(cal.pca,tcal.asin.grouped,dim=7,cutoff=0.2)
 #sample.scores<-cal.pca$x[,1:7]
 #first and second principal components
 cal.fig<-ordiplot(cal.pca, choices=c(1,2), type="none", xlim=c(-6,3), ylim=c(-5,4), main="Cal PC1 and 2")
-points(cal.fig, "sites", pch=as.numeric(substr(row.names(tgrouped),6,7)), col=as.numeric(substr(row.names(tgrouped),5,5)))
+points(cal.fig, "sites", pch=as.numeric(substr(row.names(tcal.asin.grouped),6,7)), col=as.numeric(substr(row.names(tcal.asin.grouped),5,5)))
 arrows(0,0,cal.pca$rotation[,1]*5, cal.pca$rotation[,2]*5, col="black")
 text(cal.pca$rotation[,1]*5.8, cal.pca$rotation[,2]*5.8, row.names(cal.pca$rotation))
 legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
@@ -645,7 +650,7 @@ legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"
 
 #plotting 3rd and 4th principal components
 cal.fig<-ordiplot(cal.pca, choices=c(3,4), type="none", xlim=c(-4,4), ylim=c(-4,4), main="Cal PC3 and 4")
-points(cal.fig, "sites", pch=as.numeric(substr(row.names(tgrouped),6,7)), col=as.numeric(substr(row.names(tgrouped),5,5)))
+points(cal.fig, "sites", pch=as.numeric(substr(row.names(tcal.asin.grouped),6,7)), col=as.numeric(substr(row.names(tcal.asin.grouped),5,5)))
 arrows(0,0,cal.pca$rotation[,3]*5, cal.pca$rotation[,4]*5, col="black")
 text(cal.pca$rotation[,3]*5.8, cal.pca$rotation[,4]*5.8, row.names(cal.pca$rotation))
 legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
@@ -710,40 +715,41 @@ other_PUFA<-data[data$other_PUFA==1,c(1:5, caddis.cols, POM.cols, peri.cols, fil
 other_PUFA<-colSums(other_PUFA[,6:22], na.rm=T)
 
 #grouping 1
-grouped<-rbind(short_SAFA, iSAFA_etc, other_MUFA, LIN, other_n3_n6_PUFA, OA_16.4n3,
+caddis.grouped<-rbind(short_SAFA, iSAFA_etc, other_MUFA, LIN, other_n3_n6_PUFA, OA_16.4n3,
                ALA_SDA, long_SAFA, EPA_DHA, other_PUFA)
 #grouping 2 (removed "other_MUFA" and "Other PUFA"
-# grouped<-rbind(short_SAFA, iSAFA_etc, LIN, other_n3_n6_PUFA, OA_16.4n3,
+# caddis.grouped<-rbind(short_SAFA, iSAFA_etc, LIN, other_n3_n6_PUFA, OA_16.4n3,
 #                ALA_SDA, long_SAFA, EPA_DHA)
 
 #replace zeros with small values
-for (i in 1:length(grouped[1,]))
+for (i in 1:length(caddis.grouped[1,]))
 {
-  for (j in 1:length(grouped[,1]))
+  for (j in 1:length(caddis.grouped[,1]))
   {
-    if (grouped[j,i]==0)
+    if (caddis.grouped[j,i]==0)
     {
-      grouped[j,i]<-0.000001
+      caddis.grouped[j,i]<-0.000001
       #put data on proportional scale (0-1) and arc-sin square root transform them
-      grouped[j,i]<-asin(sqrt(grouped[j,i]/100))*(2/pi)
+      caddis.asin.grouped<-caddis.grouped
+      caddis.asin.grouped[j,i]<-asin(sqrt(caddis.asin.grouped[j,i]/100))*(2/pi)
     }
   }
 }
 
-tgrouped<-t(as.matrix(grouped))
-caddis.pca<-prcomp(tgrouped,scale=T, scores=T)
+tcaddis.asin.grouped<-t(as.matrix(caddis.asin.grouped))
+caddis.pca<-prcomp(tcaddis.asin.grouped,scale=T, scores=T)
 #determine eigenvalues
 eigenvalues<-pca.eigenval(caddis.pca)
 #see which eigenvalues are significant
 screeplot(caddis.pca, bstick=T)
 #see loadings.  square these to get percentage of variance in each original variable
 #accounted for by each principal component
-structure<-pca.structure(caddis.pca,tgrouped,dim=7,cutoff=0.2)
+structure<-pca.structure(caddis.pca,tcaddis.asin.grouped,dim=7,cutoff=0.2)
 #sample.scores<-caddis.pca$x[,1:7]
 
 #first and second principal components
 caddis.fig<-ordiplot(caddis.pca, choices=c(1,2), type="none", xlim=c(-5,3), ylim=c(-6,3), main="Caddis PC1 and 2")
-points(caddis.fig, "sites", pch=as.numeric(substr(row.names(tgrouped),6,7)), col=as.numeric(substr(row.names(tgrouped),5,5)))
+points(caddis.fig, "sites", pch=as.numeric(substr(row.names(tcaddis.asin.grouped),6,7)), col=as.numeric(substr(row.names(tcaddis.asin.grouped),5,5)))
 arrows(0,0,caddis.pca$rotation[,1]*5, caddis.pca$rotation[,2]*5, col="black")
 text(caddis.pca$rotation[,1]*5.8, caddis.pca$rotation[,2]*5.8, row.names(caddis.pca$rotation))
 legend("bottomleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
@@ -756,7 +762,7 @@ legend("bottomright", legend=c("puddles", "high", "milk+clear", "big", "combined
 
 #plotting 2nd and 3rd principal components
 caddis.fig<-ordiplot(caddis.pca, choices=c(2,3), type="none", xlim=c(-5,3), ylim=c(-4,3), main="Caddis PC2 and 3")
-points(caddis.fig, "sites", pch=as.numeric(substr(row.names(tgrouped),6,7)), col=as.numeric(substr(row.names(tgrouped),5,5)))
+points(caddis.fig, "sites", pch=as.numeric(substr(row.names(tcaddis.asin.grouped),6,7)), col=as.numeric(substr(row.names(tcaddis.asin.grouped),5,5)))
 arrows(0,0,caddis.pca$rotation[,2]*5, caddis.pca$rotation[,3]*5, col="black")
 text(caddis.pca$rotation[,2]*5.8, caddis.pca$rotation[,3]*5.8, row.names(caddis.pca$rotation))
 legend("bottomleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
@@ -768,7 +774,7 @@ legend("bottomright", legend=c("puddles", "high", "milk+clear", "big", "combined
 
 #plotting 1st and 3rd principal components
 caddis.fig<-ordiplot(caddis.pca, choices=c(1,3), type="none", xlim=c(-5,3), ylim=c(-4,3), main="Caddis PC1 and 3")
-points(caddis.fig, "sites", pch=as.numeric(substr(row.names(tgrouped),6,7)), col=as.numeric(substr(row.names(tgrouped),5,5)))
+points(caddis.fig, "sites", pch=as.numeric(substr(row.names(tcaddis.asin.grouped),6,7)), col=as.numeric(substr(row.names(tcaddis.asin.grouped),5,5)))
 arrows(0,0,caddis.pca$rotation[,1]*5, caddis.pca$rotation[,3]*5, col="black")
 text(caddis.pca$rotation[,1]*5.8, caddis.pca$rotation[,3]*5.8, row.names(caddis.pca$rotation))
 legend("bottomleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
@@ -826,39 +832,40 @@ other_PUFA<-data[data$other_PUFA==1,c(1:5, clad.cols, POM.cols, peri.cols, fil.c
 other_PUFA<-colSums(other_PUFA[,6:17], na.rm=T)
 
 #grouping 1
-grouped<-rbind(short_SAFA, iSAFA_etc, other_MUFA, LIN, other_n3_n6_PUFA, OA_16.4n3,
+clad.grouped<-rbind(short_SAFA, iSAFA_etc, other_MUFA, LIN, other_n3_n6_PUFA, OA_16.4n3,
                ALA_SDA, long_SAFA, EPA_DHA, other_PUFA)
 #grouping 2 (removed "other_MUFA" and "Other PUFA"
-# grouped<-rbind(short_SAFA, iSAFA_etc, LIN, other_n3_n6_PUFA, OA_16.4n3,
+# clad.grouped<-rbind(short_SAFA, iSAFA_etc, LIN, other_n3_n6_PUFA, OA_16.4n3,
 #                ALA_SDA, long_SAFA, EPA_DHA)
 
 #replace zeros with small values
-for (i in 1:length(grouped[1,]))
+for (i in 1:length(clad.grouped[1,]))
 {
-  for (j in 1:length(grouped[,1]))
+  for (j in 1:length(clad.grouped[,1]))
   {
-    if (grouped[j,i]==0)
+    if (clad.grouped[j,i]==0)
     {
-      grouped[j,i]<-0.000001
+      clad.grouped[j,i]<-0.000001
       #put data on proportional scale (0-1) and arc-sin square root transform them
-      grouped[j,i]<-asin(sqrt(grouped[j,i]/100))*(2/pi)
+      clad.asin.grouped<-clad.grouped
+      clad.asin.grouped[j,i]<-asin(sqrt(clad.asin.grouped[j,i]/100))*(2/pi)
     }
   }
 }
 
-tgrouped<-t(as.matrix(grouped))
-clad.pca<-prcomp(tgrouped,scale=T, scores=T)
+tclad.asin.grouped<-t(as.matrix(clad.asin.grouped))
+clad.pca<-prcomp(tclad.asin.grouped,scale=T, scores=T)
 #determine eigenvalues
 eigenvalues<-pca.eigenval(clad.pca)
 #see which eigenvalues are significant
 screeplot(clad.pca, bstick=T)
 #see loadings.  square these to get percentage of variance in each original variable
 #accounted for by each principal component
-structure<-pca.structure(clad.pca,tgrouped,dim=7,cutoff=0.2)
+structure<-pca.structure(clad.pca,tclad.asin.grouped,dim=7,cutoff=0.2)
 #sample.scores<-clad.pca$x[,1:7]
 #first and second principal components
 clad.fig<-ordiplot(clad.pca, choices=c(1,2), type="none", xlim=c(-4,5), ylim=c(-4,5), main="Cladocera PC1 and 2")
-points(clad.fig, "sites", pch=as.numeric(substr(row.names(tgrouped),6,7)), col=as.numeric(substr(row.names(tgrouped),5,5)))
+points(clad.fig, "sites", pch=as.numeric(substr(row.names(tclad.asin.grouped),6,7)), col=as.numeric(substr(row.names(tclad.asin.grouped),5,5)))
 arrows(0,0,clad.pca$rotation[,1]*5, clad.pca$rotation[,2]*5, col="black")
 text(clad.pca$rotation[,1]*5.8, clad.pca$rotation[,2]*5.8, row.names(clad.pca$rotation))
 legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
@@ -871,7 +878,7 @@ legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"
 
 #plotting 3rd and 4th principal components
 clad.fig<-ordiplot(clad.pca, choices=c(3,4), type="none", xlim=c(-4,5), ylim=c(-4,4), main="Cladocera PC3 and 4")
-points(clad.fig, "sites", pch=as.numeric(substr(row.names(tgrouped),6,7)), col=as.numeric(substr(row.names(tgrouped),5,5)))
+points(clad.fig, "sites", pch=as.numeric(substr(row.names(tclad.asin.grouped),6,7)), col=as.numeric(substr(row.names(tclad.asin.grouped),5,5)))
 arrows(0,0,clad.pca$rotation[,3]*5, clad.pca$rotation[,4]*5, col="black")
 text(clad.pca$rotation[,3]*5.8, clad.pca$rotation[,4]*5.8, row.names(clad.pca$rotation))
 legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
@@ -929,39 +936,40 @@ other_PUFA<-data[data$other_PUFA==1,c(1:5, cal.cols, fish.cols, caddis.cols, cla
 other_PUFA<-colSums(other_PUFA[,6:42], na.rm=T)
 
 #grouping 1
-grouped<-rbind(short_SAFA, iSAFA_etc, other_MUFA, LIN, other_n3_n6_PUFA, OA_16.4n3,
+all.grouped<-rbind(short_SAFA, iSAFA_etc, other_MUFA, LIN, other_n3_n6_PUFA, OA_16.4n3,
                ALA_SDA, long_SAFA, EPA_DHA, other_PUFA)
 #grouping 2 (removed "other_MUFA" and "Other PUFA"
-# grouped<-rbind(short_SAFA, iSAFA_etc, LIN, other_n3_n6_PUFA, OA_16.4n3,
+# all.grouped<-rbind(short_SAFA, iSAFA_etc, LIN, other_n3_n6_PUFA, OA_16.4n3,
 #                ALA_SDA, long_SAFA, EPA_DHA)
 
 #replace zeros with small values
-for (i in 1:length(grouped[1,]))
+for (i in 1:length(all.grouped[1,]))
 {
-  for (j in 1:length(grouped[,1]))
+  for (j in 1:length(all.grouped[,1]))
   {
-    if (grouped[j,i]==0)
+    if (all.grouped[j,i]==0)
     {
-      grouped[j,i]<-0.000001
+      all.grouped[j,i]<-0.000001
       #put data on proportional scale (0-1) and arc-sin square root transform them
-      grouped[j,i]<-asin(sqrt(grouped[j,i]/100))*(2/pi)
+      all.asin.grouped<-all.grouped
+      all.asin.grouped[j,i]<-asin(sqrt(all.asin.grouped[j,i]/100))*(2/pi)
     }
   }
 }
 
-tgrouped<-t(as.matrix(grouped))
-all.pca<-prcomp(tgrouped,scale=T, scores=T)
+tall.asin.grouped<-t(as.matrix(all.asin.grouped))
+all.pca<-prcomp(tall.asin.grouped,scale=T, scores=T)
 #determine eigenvalues
 eigenvalues<-pca.eigenval(all.pca)
 #see which eigenvalues are significant
 screeplot(all.pca, bstick=T)
 #see loadings.  square these to get percentage of variance in each original variable
 #accounted for by each principal component
-structure<-pca.structure(all.pca,tgrouped,dim=7,cutoff=0.2)
+structure<-pca.structure(all.pca,tall.asin.grouped,dim=7,cutoff=0.2)
 #sample.scores<-all.pca$x[,1:7]
 #first and second principal components
 all.fig<-ordiplot(all.pca, choices=c(1,2), type="none", xlim=c(-4,5), ylim=c(-4,4), main="All PC1 and 2")
-points(all.fig, "sites", pch=as.numeric(substr(row.names(tgrouped),6,7)), col=as.numeric(substr(row.names(tgrouped),5,5)))
+points(all.fig, "sites", pch=as.numeric(substr(row.names(tall.asin.grouped),6,7)), col=as.numeric(substr(row.names(tall.asin.grouped),5,5)))
 arrows(0,0,all.pca$rotation[,1]*5, all.pca$rotation[,2]*5, col="black")
 text(all.pca$rotation[,1]*5.8, all.pca$rotation[,2]*5.8, row.names(all.pca$rotation))
 legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
@@ -974,7 +982,7 @@ legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"
 
 # #plotting 3rd and 4th principal components
 # all.fig<-ordiplot(all.pca, choices=c(3,4), type="none", xlim=c(-4,5), ylim=c(-4,4), main="All PC1 and 2")
-# points(all.fig, "sites", pch=as.numeric(substr(row.names(tgrouped),6,7)), col=as.numeric(substr(row.names(tgrouped),5,5)))
+# points(all.fig, "sites", pch=as.numeric(substr(row.names(tall.asin.grouped),6,7)), col=as.numeric(substr(row.names(tall.asin.grouped),5,5)))
 # arrows(0,0,all.pca$rotation[,3]*5, all.pca$rotation[,4]*5, col="black")
 # text(all.pca$rotation[,3]*5.8, all.pca$rotation[,4]*5.8, row.names(all.pca$rotation))
 # legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
@@ -984,31 +992,6 @@ legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"
 # legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
 #        fill=c(1, 2, 3, 4, 5))
 # 
-
-#are there obvious differences among the frequency distributions?
-par(mar=c(0,5,0,0))
-par(mfrow=c(6,1))
-for(i in 1:6)
-{
-  if (substr(colnames(dist.data[clad.cols[i]]),5,5)==1)
-  {
-    plot(dist.data[,clad.cols[i]], type="l", ylab=colnames(dist.data[clad.cols[i]]), xlab="", col="blue")
-  }  
-  else if (substr(colnames(dist.data[clad.cols[i]]),5,5)==2)
-  {
-    plot(dist.data[,clad.cols[i]], type="l", ylab=colnames(dist.data[clad.cols[i]]), xlab="", col="red")
-  } 
-  else if (substr(colnames(dist.data[clad.cols[i]]),5,5)==3)
-  {
-    plot(dist.data[,clad.cols[i]], type="l", ylab=colnames(dist.data[clad.cols[i]]), xlab="", col="black")
-  }
-  else if (substr(colnames(dist.data[clad.cols[i]]),5,5)==4)
-  {
-    plot(dist.data[,clad.cols[i]], type="l", ylab=colnames(dist.data[clad.cols[i]]), xlab="", col="green")
-  }
-}
-par(mar=c(4,4,4,4))
-par(mfrow=c(1,1))
 
 ####13 - NMDS functions - must run PCAs before corresponding NMDSs will work####
 nmds.scree <-
@@ -1071,19 +1054,20 @@ nmds.monte <-
   }
 ####14 - NMDS Calanoid ####
 
-#this permorms the NMDS
-cal.nmds<-metaMDS(tgrouped, distance="bray", k=3, trymax=20, autotransform=F)
+#this performs the NMDS
+tcal.grouped<-t(as.matrix(cal.grouped))
+cal.nmds<-metaMDS(tcal.grouped, distance="bray", k=2, trymax=100, autotransform=F) #see nmds.monte for dimension testing
 
 #not sure how scree or stressplot are used here, but keep trying the monte until you have a
 #managable number of dimensions and the last addition removes considerable stress.
-nmds.scree(tgrouped, distance="bray", k=10, autotransform=F, trymax=20)
-nmds.monte(tgrouped, distance="bray", k=3, autotransform=F, trymax=20)
+nmds.scree(tcal.grouped, distance="bray", k=10, autotransform=F, trymax=20)
+nmds.monte(tcal.grouped, distance="bray", k=2, autotransform=F, trymax=20) #stress is higher with 3 dimensions than with 2 or 4.  I went with 2 for the NMDS.
 #based on the monte, 3 is the correct number of dimensions to consider
 stressplot(cal.nmds)
 
 #gangster plotting
 # plot(cal.nmds, type="n")
-# text(cal.nmds, labels=row.names(tgrouped))
+# text(cal.nmds, labels=row.names(tcal.grouped))
 
 #sample scores
 cal.sample.scores<-cal.nmds$points
@@ -1091,21 +1075,172 @@ cal.sample.scores<-cal.nmds$points
 #calculate loadings (variable weights) on each NMDS axis
 #these determine which FAs can be used to interpret the positions
 #of the samples in ordination space.
-cal.loadings<-envfit(cal.nmds$points, tgrouped, perm=1000)
+cal.loadings<-envfit(cal.nmds$points, tcal.grouped, perm=1000)
 
 #plot loadings on ordination plot
-ordiplot(cal.nmds, choices=c(1,2), type="text", display="sites")
-plot.envfit(cal.loadings, p.max=.05, col="blue") #this function doesn't exist?
+cal.fig2<-ordiplot(cal.nmds, choices=c(1,2), type="none", main="Cal NMDS1 and 2")
+plot(cal.loadings, p.max=.05, col="black")
+points(cal.fig2, "sites", pch=as.numeric(substr(row.names(tcal.grouped),6,7)), col=as.numeric(substr(row.names(tcal.grouped),5,5)))
+legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
+                           "fish", "POM", "periphyton", "filamentous", "moss", 
+                           "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
+                                                            11, 7, 9, 14))
+legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
+       fill=c(1, 2, 3, 4, 5))
 
-#combining clustering and ordination?
-cal.d<-vegdist(tgrouped, "bray")
-cal.ward<-hclust(cal.d, method="ward")
-cal.class<-cutree(cal.ward, k=3)
-cal.groups<-levels(factor(cal.class))
-cal.site<-scores(cal.nmds)
-ordiplot(cal.site, type="n", main="Cal NMDS + Clustering") #error here
-for (i in 1:length(cal.groups))
-{
-  points(cal.site[cal.class==i,], pch=(14+i), cex=2, col=i+1)
-}
-text(cal.site, row.names(#??????
+# #different method (not working)
+# library(ggplot2)
+# library(grid)
+# cal.nmds<-metaMDS(tcal.grouped, distance="bray", k=3, trymax=20, autotransform=F)#copied from above
+# cal.nmds2<-data.frame(MDS1 = cal.nmds$points[,1], MDS2 = cal.nmds$points[,2])
+# cal.loadings<-envfit(cal.nmds$points, tcal.grouped, perm=1000)#copied from above
+# cal.vec<-as.data.frame(cal.loadings$vectors$arrows*sqrt(cal.loadings$vectors$r))
+# cal.vec$FAs<-rownames(cal.vec) #this step is unnecessary.  use rownames
+# ggplot(data=cal.nmds2, aes(MDS1, MDS2))+
+#   geom_point(aes(data=rownames(cal.nmds2), color=substr(rownames(cal.nmds2),5,5)))+
+#   geom_segment(data=cal.vec, aes(c=0, xend=MDS1, y=0, yend=MDS2),
+#                arrow = arrow(length=unit(0.5, "cm")), colour="gray", inherit_aes=F)+
+#   geom_text(data=cal.vec, aes(x=MDS1, y=MDS2, label=FAs), size=5)+
+#   coord_fixed()
+
+# #third method (almost works as-is.  each legend is created in a different way and only lake_type
+# #works right.  don't know how to label it though.  for the other one, could label within the scale_shape_identity call.
+# library(ggplot2)
+# library(grid)
+# cal.nmds3<-metaMDS(tcal.grouped, distance="bray", k=3, trymax=20, autotransform=F)
+# cal.scores<-as.data.frame(scores(cal.nmds3,display="sites"))
+# cal.scores<-cbind(cal.scores, Lake_Type=substr(rownames(cal.scores),5,5), Organism=as.integer(substr(rownames(cal.scores),6,7)))
+# #translate colname codes into lake and organism types for plotting
+# # lake.types<-mapvalues(factor(substr(rownames(cal.scores),5,5)), from=c(1,2,3,4,5), to=c("Puddle", "High", "Clear + Milk", "Big", "NA"))
+# # org.types<-mapvalues(factor(substr(rownames(cal.scores),6,7)), from=c("04","07","08","09","11","14","20"), to=c("Periphyton", "Moss", "POM", "Soil", "Filamentous", "Terr. Plant", "Calanoid"))
+# cal.vf<-envfit(cal.nmds3, tcal.grouped, perm=1000)
+# cal.spp<-as.data.frame(scores(cal.vf, display="vectors"))
+# cal.spp<-cbind(cal.spp, FAs=rownames(cal.spp))
+# cal.nmds.plot<-ggplot(cal.scores)+
+#   geom_point(mapping=aes(x=NMDS1, y=NMDS2, colour=Lake_Type, shape=Organism))+
+# #   scale_color_manual(values=c("darkslategray2", "darkseagreen2", "lightgoldenrod2", "darkorange2", "indianred2"),
+# #                     name="Lake Type", 
+#   scale_shape_identity(guide="legend")+ #tells "shape" to accept integers as direct specifiers of pch
+#   coord_fixed()+ #need aspect ratio of 1?
+#   geom_segment(data=cal.spp,
+#                aes(x=0, xend=NMDS1, y=0, yend=NMDS2),
+#                arrow=arrow(length=unit(0.25, "cm")), colour="grey")+
+#   geom_text(data=cal.spp, aes(x=NMDS1, y=NMDS2, label=FAs), size=3)
+
+# #combining clustering and ordination?
+# cal.d<-vegdist(tcal.grouped, "bray")
+# cal.ward<-hclust(cal.d, method="ward")
+# cal.class<-cutree(cal.ward, k=3)
+# cal.groups<-levels(factor(cal.class))
+# cal.site<-scores(cal.nmds)
+# ordiplot(cal.site, type="n", main="Cal NMDS + Clustering") #error here
+# for (i in 1:length(cal.groups))
+# {
+#   points(cal.site[cal.class==i,], pch=(14+i), cex=2, col=i+1)
+# }
+# text(cal.site, row.names(#??????
+####15 - NMDS Caddis ####
+
+#this performs the NMDS
+tcaddis.grouped<-t(as.matrix(caddis.grouped))
+caddis.nmds<-metaMDS(tcaddis.grouped, distance="bray", k=2, trymax=100, autotransform=F) #again, 2 seems to be the best number of dimensions, as long as I'm interpreting my monte correctly
+
+#not sure how scree or stressplot are used here, but keep trying the monte until you have a
+#managable number of dimensions and the last addition removes considerable stress.
+nmds.scree(tcaddis.grouped, distance="bray", k=10, autotransform=F, trymax=20)
+nmds.monte(tcaddis.grouped, distance="bray", k=2, autotransform=F, trymax=20)
+#based on the monte, 3 is the correct number of dimensions to consider
+stressplot(caddis.nmds)
+
+#gangster plotting
+# plot(caddis.nmds, type="n")
+# text(caddis.nmds, labels=row.names(tcaddis.grouped))
+
+#sample scores
+caddis.sample.scores<-caddis.nmds$points
+
+#calculate loadings (variable weights) on each NMDS axis
+#these determine which FAs can be used to interpret the positions
+#of the samples in ordination space.
+caddis.loadings<-envfit(caddis.nmds$points, tcaddis.grouped, perm=1000); caddis.loadings
+
+#plot NMDS 1 and 2
+caddis.fig2<-ordiplot(caddis.nmds, choices=c(1,2), type="none", main="Caddis NMDS1 and 2")
+plot(caddis.loadings, p.max=.05, col="black")
+points(caddis.fig2, "sites", pch=as.numeric(substr(row.names(tcaddis.grouped),6,7)), col=as.numeric(substr(row.names(tcaddis.grouped),5,5)))
+legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
+                           "fish", "POM", "periphyton", "filamentous", "moss", 
+                           "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
+                                                            11, 7, 9, 14))
+legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
+       fill=c(1, 2, 3, 4, 5))
+####16 - NMDS Cladocera ####
+
+#this performs the NMDS
+tclad.grouped<-t(as.matrix(clad.grouped))
+clad.nmds<-metaMDS(tclad.grouped, distance="bray", k=2, trymax=100, autotransform=F) #again, 2 seems to be the best number of dimensions, as long as I'm interpreting my monte correctly
+
+#not sure how scree or stressplot are used here, but keep trying the monte until you have a
+#managable number of dimensions and the last addition removes considerable stress.
+nmds.scree(tclad.grouped, distance="bray", k=10, autotransform=F, trymax=20)
+nmds.monte(tclad.grouped, distance="bray", k=2, autotransform=F, trymax=20)
+#based on the monte, 3 is the correct number of dimensions to consider
+stressplot(clad.nmds)
+
+#gangster plotting
+# plot(clad.nmds, type="n")
+# text(clad.nmds, labels=row.names(tclad.grouped))
+
+#sample scores
+clad.sample.scores<-clad.nmds$points
+
+#calculate loadings (variable weights) on each NMDS axis
+#these determine which FAs can be used to interpret the positions
+#of the samples in ordination space.
+clad.loadings<-envfit(clad.nmds$points, tclad.grouped, perm=1000); clad.loadings
+
+#plot NMDS 1 and 2
+clad.fig2<-ordiplot(clad.nmds, choices=c(1,2), type="none", main="clad NMDS1 and 2")
+plot(clad.loadings, p.max=.06, col="black")
+points(clad.fig2, "sites", pch=as.numeric(substr(row.names(tclad.grouped),6,7)), col=as.numeric(substr(row.names(tclad.grouped),5,5)))
+legend("topright", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
+                           "fish", "POM", "periphyton", "filamentous", "moss", 
+                           "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
+                                                            11, 7, 9, 14))
+legend("bottomright", legend=c("puddles", "high", "milk+clear", "big", "combined"),
+       fill=c(1, 2, 3, 4, 5))
+####17 - NMDS all ####
+
+#this performs the NMDS
+tall.grouped<-t(as.matrix(all.grouped))
+all.nmds<-metaMDS(tall.grouped, distance="bray", k=3, trymax=100, autotransform=F) #three dimensions this time
+
+#not sure how scree or stressplot are used here, but keep trying the monte until you have a
+#managable number of dimensions and the last addition removes considerable stress.
+nmds.scree(tall.grouped, distance="bray", k=10, autotransform=F, trymax=20)
+nmds.monte(tall.grouped, distance="bray", k=3, autotransform=F, trymax=20)
+#based on the monte, 3 is the correct number of dimensions to consider
+stressplot(all.nmds)
+
+#gangster plotting
+# plot(all.nmds, type="n")
+# text(all.nmds, labels=row.names(tall.grouped))
+
+#sample scores
+all.sample.scores<-all.nmds$points
+
+#calculate loadings (variable weights) on each NMDS axis
+#these determine which FAs can be used to interpret the positions
+#of the samples in ordination space.
+all.loadings<-envfit(all.nmds$points, tall.grouped, perm=1000); all.loadings
+
+#plot NMDS 1 and 2
+all.fig2<-ordiplot(all.nmds, choices=c(1,2), type="none", main="All NMDS1 and 2")
+plot(all.loadings, p.max=.08, col="black")
+points(all.fig2, "sites", pch=as.numeric(substr(row.names(tall.grouped),6,7)), col=as.numeric(substr(row.names(tall.grouped),5,5)))
+legend("topright", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
+                            "fish", "POM", "periphyton", "filamentous", "moss", 
+                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
+                                                             11, 7, 9, 14))
+legend("bottomright", legend=c("puddles", "high", "milk+clear", "big", "combined"),
+       fill=c(1, 2, 3, 4, 5))
