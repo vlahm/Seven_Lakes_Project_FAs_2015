@@ -14,6 +14,7 @@ windows(record=T) #navigate plots in this separate window using PgUp and PgDn
 #run this block
 setwd("C:/Users/Mike/Desktop/Grad/Projects/Thesis/Seven Lakes Project 2014/Data/FA/PCA_arrangements")
 ####0 -functions and packages####
+alldata<-read.csv("C:/Users/Mike/Desktop/Grad/Projects/Thesis/Seven Lakes Project 2014/Analysis/7lmeans.csv")
 library(vioplot)
 library(vegan)
 library(plyr)
@@ -396,7 +397,7 @@ for(i in 1:length(area.cols))
 }
 
 #replace column names with IDs (ID key here: "C:\Users\Mike\Desktop\Grad\Projects\Thesis\Seven Lakes Project 2014\Data\FA\PCA_arrangements\ID_key.csv")
-#first three digits = sample number, next one is lake type, last two are organism type
+#first three digits = sample number, next one is lake type, next two are organism type, last two correspond to lake name
 IDs<-c("i001215", "i002215", "i003103", "i004103", "i006303", "i007203", "i008403", "i009403", "i010203", "011i203", "i012103", "i013120",
        "i090120", "i092303", "i108120", "i094220", "i085220", "i086220", "i087220", "i080317", "i096120", "i081318", "i082320", "i083420", "i084418", 
        "i093118", "i105320", "i106317", "i097118", "i091118", "i095118", "i017111", "i032110", "i029410", "i034210", "i041108", "i044308", "i048308",
@@ -547,7 +548,7 @@ legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
 legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
        fill=c(1, 2, 3, 4, 5))
 
-####8 - PCA functions, etc. (Method 3 of 3)####
+####8 - PCA functions, etc. (Method 3 of 3) - NEED THIS TO RUN ALL PCAS####
 
 #combined POM and peri samples in Excel
 data<-read.csv("ultimate_spreadsheet_POMandPeriCombinedLakes.csv")
@@ -556,6 +557,7 @@ data<-read.csv("ultimate_spreadsheet_POMandPeriCombinedLakes.csv")
 #        "i093101", "i105320", "i106317", "i097101", "i091101", "i095101", "i017111", "i000504", "i000508", "i071109", "i000514", "i109107")
 # colnames(data)[16:52]<-IDs
 
+#identify columns for each sample type
 cal.cols<-grep("20", substr(colnames(data),6,7))
 clad.cols<-grep("01", substr(colnames(data),6,7))
 caddis.cols<-grep("03", substr(colnames(data),6,7))
@@ -568,6 +570,7 @@ moss.cols<-grep("07", substr(colnames(data),6,7))
 soil.cols<-grep("09", substr(colnames(data),6,7))
 plant.cols<-grep("14", substr(colnames(data),6,7))
 
+#replace NAs with small value (for frequency distribution plots)
 dist.data<-data
 for (i in 1:length(dist.data[1,16:52]))
 {
@@ -579,7 +582,7 @@ for (i in 1:length(dist.data[1,16:52]))
     }
   }
 }
-####9 - Calanoid####
+####9 - Calanoid + producers####
 #create groupings
 short_SAFA<-data[data$short_SAFA==1,c(1:5, cal.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
 short_SAFA<-colSums(short_SAFA[,6:21], na.rm=T)
@@ -690,7 +693,7 @@ for(i in 1:10)
 }
 par(mar=c(4,4,4,4))
 par(mfrow=c(1,1))
-####10 - Caddisfly####
+####10 - Caddisfly + producers####
 
 #create groupings
 short_SAFA<-data[data$short_SAFA==1,c(1:5, caddis.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
@@ -808,7 +811,7 @@ for(i in 1:11)
 }
 par(mar=c(4,4,4,4))
 par(mfrow=c(1,1))
-####11 - Cladocera####
+####11 - Cladocera + producers####
 #create groupings
 short_SAFA<-data[data$short_SAFA==1,c(1:5, clad.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
 short_SAFA<-colSums(short_SAFA[,6:17], na.rm=T)
@@ -1244,3 +1247,154 @@ legend("topright", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
                                                              11, 7, 9, 14))
 legend("bottomright", legend=c("puddles", "high", "milk+clear", "big", "combined"),
        fill=c(1, 2, 3, 4, 5))
+
+####18 - Calanoid PCA - sized by shed:lake####
+
+#create FA groupings
+short_SAFA<-data[data$short_SAFA==1,c(1:5, cal.cols)]
+short_SAFA<-colSums(short_SAFA[,6:15], na.rm=T)
+iSAFA_etc<-data[data$iSAFA_etc==1,c(1:5, cal.cols)]
+iSAFA_etc<-colSums(iSAFA_etc[,6:15], na.rm=T)
+other_MUFA<-data[data$other_MUFA==1,c(1:5, cal.cols)]
+other_MUFA<-colSums(other_MUFA[,6:15], na.rm=T)
+LIN<-data[data$LIN==1,c(1:5, cal.cols)]
+LIN<-colSums(LIN[,6:15], na.rm=T)
+other_n3_n6_PUFA<-data[data$other_n3_n6_PUFA==1,c(1:5, cal.cols)]
+other_n3_n6_PUFA<-colSums(other_n3_n6_PUFA[,6:15], na.rm=T)
+OA_16.4n3<-data[data$OA_16.4n3==1,c(1:5, cal.cols)]
+OA_16.4n3<-colSums(OA_16.4n3[,6:15], na.rm=T)
+ALA_SDA<-data[data$ALA_SDA==1,c(1:5, cal.cols)]
+ALA_SDA<-colSums(ALA_SDA[,6:15], na.rm=T)
+long_SAFA<-data[data$long_SAFA==1,c(1:5, cal.cols)]
+long_SAFA<-colSums(long_SAFA[,6:15], na.rm=T)
+EPA_DHA<-data[data$EPA_DHA==1,c(1:5, cal.cols)]
+EPA_DHA<-colSums(EPA_DHA[,6:15], na.rm=T)
+other_PUFA<-data[data$other_PUFA==1,c(1:5, cal.cols)]
+other_PUFA<-colSums(other_PUFA[,6:15], na.rm=T)
+
+#grouping combination 1 (all)
+cal.grouped<-rbind(short_SAFA, iSAFA_etc, other_MUFA, LIN, other_n3_n6_PUFA, OA_16.4n3,
+                   ALA_SDA, long_SAFA, EPA_DHA, other_PUFA)
+#grouping 2 (removed "other_MUFA" and "Other PUFA")
+# cal.grouped<-rbind(short_SAFA, iSAFA_etc, LIN, other_n3_n6_PUFA, OA_16.4n3,
+#                ALA_SDA, long_SAFA, EPA_DHA)
+
+#modify the grouped data for PCA (arcsin sqrt transform and missing data replacement)
+for (i in 1:length(cal.grouped[1,]))
+{
+  for (j in 1:length(cal.grouped[,1]))
+  {
+    #replace zeros with small values
+    if (cal.grouped[j,i]==0)
+    {
+      cal.grouped[j,i]<-0.000001
+    }
+    #put data on proportional scale (0-1) and arc-sin square root transform them
+    cal.asin.grouped<-cal.grouped
+    cal.asin.grouped[j,i]<-asin(sqrt(cal.asin.grouped[j,i]/100))*(2/pi)
+  }
+}
+
+#format data for PCA
+tcal.asin.grouped<-t(as.matrix(cal.asin.grouped))
+
+#perform PCA and associated tests
+cal.pca<-prcomp(tcal.asin.grouped,scale=T, scores=T)
+#determine eigenvalues
+eigenvalues<-pca.eigenval(cal.pca)
+#see which eigenvalues are significant
+screeplot(cal.pca, bstick=T)
+#see loadings.  square these to get percentage of variance in each original variable
+#accounted for by each principal component
+structure<-pca.structure(cal.pca,tcal.asin.grouped,dim=7,cutoff=0.2)
+#sample.scores<-cal.pca$x[,1:7]
+
+#create matrix of other covariates organized so that they can be used as cex values in the plot
+indexed.covariates<-matrix(NA, nrow=length(row.names(tcal.asin.grouped)), ncol=31)
+normalized.covariates<-matrix(NA, nrow=length(row.names(tcal.asin.grouped)), ncol=31)
+for (i in 1:31)
+{
+  for (j in 1:length(row.names(tcal.asin.grouped)))
+  {
+    indexed.covariates[j,i]<-alldata[1:11,i][alldata$lake_ID[1:11]==(as.numeric(substr(row.names(tcal.asin.grouped),8,9))[j])]
+  }
+  for (j in 1:length(row.names(tcal.asin.grouped)))
+  {
+    #need to know how to normalize to any range.  should bound between 1 and 10?
+    normalized.covariates[j,i]<-((abs(indexed.covariates[j,i])-min(abs(indexed.covariates[,i]))) / (max(abs(indexed.covariates[,i]))-min(abs(indexed.covariates[,i]))))*10
+  }    
+}
+indexed.covariates<-as.data.frame(indexed.covariates)
+colnames(indexed.covariates)<-colnames(alldata)
+normalized.covariates<-as.data.frame(normalized.covariates)
+colnames(normalized.covariates)<-colnames(alldata)
+
+#notable covariates: pCO2/50 OR DIC_conc/80, CH4*20000000, 
+
+abs(indexed.covariates$tdp)
+
+#plot PCA
+#first and second principal components
+cal.fig<-ordiplot(cal.pca, choices=c(1,2), type="none", xlim=c(-6,3), ylim=c(-5,4), main="Cal PC1 and 2")
+points(cal.fig, "sites", pch=as.numeric(substr(row.names(tcal.asin.grouped),6,7)), 
+       col=as.numeric(substr(row.names(tcal.asin.grouped),5,5)), cex=indexed.covariates$tdp)
+points(cal.fig, "sites", pch=21, bg="transparent", col="gray", cex=indexed.covariates$lake_area*3+1)
+# points(cal.fig, "sites", pch=21, bg="transparent", col="gray", cex=indexed.covariates$shed_lake_areaRatio/10)
+arrows(0,0,cal.pca$rotation[,1]*5, cal.pca$rotation[,2]*5, col="purple")
+text(cal.pca$rotation[,1]*5.8, cal.pca$rotation[,2]*5.8, row.names(cal.pca$rotation), col="purple")
+legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
+                           "fish", "POM", "periphyton", "filamentous", "moss", 
+                           "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
+                                                            11, 7, 9, 14))
+legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
+       fill=c(1, 2, 3, 4, 5))
+
+
+#left off here
+
+
+
+
+
+#plotting 3rd and 4th principal components
+cal.fig<-ordiplot(cal.pca, choices=c(3,4), type="none", xlim=c(-4,4), ylim=c(-4,4), main="Cal PC3 and 4")
+points(cal.fig, "sites", pch=as.numeric(substr(row.names(tcal.asin.grouped),6,7)), col=as.numeric(substr(row.names(tcal.asin.grouped),5,5)))
+arrows(0,0,cal.pca$rotation[,3]*5, cal.pca$rotation[,4]*5, col="black")
+text(cal.pca$rotation[,3]*5.8, cal.pca$rotation[,4]*5.8, row.names(cal.pca$rotation))
+legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
+                           "fish", "POM", "periphyton", "filamentous", "moss", 
+                           "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
+                                                            11, 7, 9, 14))
+legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
+       fill=c(1, 2, 3, 4, 5))
+
+#are there obvious differences among the frequency distributions?
+
+# #vio.data is the same as dist.data
+# vioplot(vio.data[,cal.cols[1]], vio.data[,cal.cols[2]], vio.data[,cal.cols[3]], vio.data[,cal.cols[4]], vio.data[,cal.cols[5]], 
+#         vio.data[,cal.cols[6]], vio.data[,cal.cols[7]], vio.data[,cal.cols[8]], vio.data[,cal.cols[9]], vio.data[,cal.cols[10]], 
+#         names=(colnames(vio.data[,cal.cols])), h=3, wex=1)
+
+par(mar=c(0,5,0,0))
+par(mfrow=c(10,1))
+for(i in 1:10)
+{
+  if (substr(colnames(dist.data[cal.cols[i]]),5,5)==1)
+  {
+    plot(dist.data[,cal.cols[i]], type="l", ylab=colnames(dist.data[cal.cols[i]]), xlab="", col="blue")
+  }  
+  else if (substr(colnames(dist.data[cal.cols[i]]),5,5)==2)
+  {
+    plot(dist.data[,cal.cols[i]], type="l", ylab=colnames(dist.data[cal.cols[i]]), xlab="", col="red")
+  } 
+  else if (substr(colnames(dist.data[cal.cols[i]]),5,5)==3)
+  {
+    plot(dist.data[,cal.cols[i]], type="l", ylab=colnames(dist.data[cal.cols[i]]), xlab="", col="black")
+  }
+  else if (substr(colnames(dist.data[cal.cols[i]]),5,5)==4)
+  {
+    plot(dist.data[,cal.cols[i]], type="l", ylab=colnames(dist.data[cal.cols[i]]), xlab="", col="green")
+  }
+}
+par(mar=c(4,4,4,4))
+par(mfrow=c(1,1))
