@@ -1,23 +1,23 @@
 #Michael Vlah - University of Washington - Seven Lakes Project
 #vlahm13@gmail.com
 #created August 2015
-#last edit: 9/8/15
+#last edit: 9/15/15
 
 #Notice: this script includes many trial methods that became obsolete.
 #They have been retained for future reference and code-borrowing.
 #To run the analysis in its final form, you'll need to run the material in 
 #part 0 - functions and packages.  Then start with part 8.
 
-#optional
 dev.off()
 windows(record=T) #navigate plots in this separate window using PgUp and PgDn
-#run this block
 setwd("C:/Users/Mike/Desktop/Grad/Projects/Thesis/Seven Lakes Project 2014/Data/FA/PCA_arrangements")
-####0 -functions and packages####
+data<-read.csv("ultimate_spreadsheet_POMandPeriCombinedLakes.csv")
+########0 -functions and packages####
 alldata<-read.csv("C:/Users/Mike/Desktop/Grad/Projects/Thesis/Seven Lakes Project 2014/Analysis/7lmeans.csv")
 library(vioplot)
 library(vegan)
 library(plyr)
+library(plotrix)
 
 #FISH560 functions
 pca.eigenval <-
@@ -548,10 +548,10 @@ legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
 legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
        fill=c(1, 2, 3, 4, 5))
 
-####8 - PCA functions, etc. (Method 3 of 3) - NEED THIS TO RUN ALL PCAS####
+########8 - PCA and HCA functions, etc. (Method 3 of 3) - NEED THIS TO RUN ALL PCAS and HCAs####
 
 #combined POM and peri samples in Excel
-data<-read.csv("ultimate_spreadsheet_POMandPeriCombinedLakes.csv")
+
 # IDs<-c("i001215", "i002215", "i003103", "i004103", "i006303", "i007203", "i008403", "i009403", "i010403", "i011203", "i012203", "i013103",
 #        "i090120", "i092120", "i108303", "i094120", "i085220", "i086220", "i087220", "i080317", "i096120", "i081301", "i082320", "i083420", "i084401", 
 #        "i093101", "i105320", "i106317", "i097101", "i091101", "i095101", "i017111", "i000504", "i000508", "i071109", "i000514", "i109107")
@@ -996,7 +996,7 @@ legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"
 #        fill=c(1, 2, 3, 4, 5))
 # 
 
-####13 - NMDS functions - must run PCAs before corresponding NMDSs will work####
+########13 - NMDS functions - must run PCAs before corresponding NMDSs will work####
 nmds.scree <-
   function(x,distance='bray',k=6,trymax=50,
            autotransform=FALSE,trace=0,...){
@@ -1248,7 +1248,7 @@ legend("topright", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
 legend("bottomright", legend=c("puddles", "high", "milk+clear", "big", "combined"),
        fill=c(1, 2, 3, 4, 5))
 
-####18 - Calanoid PCA - sized by shed:lake####
+####18 - Calanoid PCA etc. ####
 
 #create FA groupings
 short_SAFA<-data[data$short_SAFA==1,c(1:5, cal.cols)]
@@ -1310,36 +1310,26 @@ structure<-pca.structure(cal.pca,tcal.asin.grouped,dim=7,cutoff=0.2)
 #sample.scores<-cal.pca$x[,1:7]
 
 #create matrix of other covariates organized so that they can be used as cex values in the plot
-indexed.covariates<-matrix(NA, nrow=length(row.names(tcal.asin.grouped)), ncol=31)
-normalized.covariates<-matrix(NA, nrow=length(row.names(tcal.asin.grouped)), ncol=31)
-for (i in 1:31)
+cal.indexed.covariates<-matrix(NA, nrow=length(row.names(tcal.asin.grouped)), ncol=34)
+for (i in 1:34)
 {
   for (j in 1:length(row.names(tcal.asin.grouped)))
   {
-    indexed.covariates[j,i]<-alldata[1:11,i][alldata$lake_ID[1:11]==(as.numeric(substr(row.names(tcal.asin.grouped),8,9))[j])]
+    #read lake_ID(but not class) off alldata and match it to lake ID in the indexed covariates
+    cal.indexed.covariates[j,i]<-alldata[1:11,i][substr(alldata$lake_ID_andClass[1:11],1,2)==(as.numeric(substr(row.names(tcal.asin.grouped),8,9))[j])]
   }
-  for (j in 1:length(row.names(tcal.asin.grouped)))
-  {
-    #need to know how to normalize to any range.  should bound between 1 and 10?
-    normalized.covariates[j,i]<-((abs(indexed.covariates[j,i])-min(abs(indexed.covariates[,i]))) / (max(abs(indexed.covariates[,i]))-min(abs(indexed.covariates[,i]))))*10
-  }    
 }
-indexed.covariates<-as.data.frame(indexed.covariates)
-colnames(indexed.covariates)<-colnames(alldata)
-normalized.covariates<-as.data.frame(normalized.covariates)
-colnames(normalized.covariates)<-colnames(alldata)
-
-#notable covariates: pCO2/50 OR DIC_conc/80, CH4*20000000, 
-
-abs(indexed.covariates$tdp)
+cal.indexed.covariates<-as.data.frame(cal.indexed.covariates)
+colnames(cal.indexed.covariates)<-colnames(alldata)
+cal.indexed.covariates[,1]<-c("C", "O", "Z", "Mirror", "Y025", "Y015", "L", "Clear", "Morgenroth", "Milk")
 
 #plot PCA
-#first and second principal components
+#first and second principal components (showing watershed area:lake area ratio)
 cal.fig<-ordiplot(cal.pca, choices=c(1,2), type="none", xlim=c(-6,3), ylim=c(-5,4), main="Cal PC1 and 2")
 points(cal.fig, "sites", pch=as.numeric(substr(row.names(tcal.asin.grouped),6,7)), 
-       col=as.numeric(substr(row.names(tcal.asin.grouped),5,5)), cex=indexed.covariates$tdp)
-points(cal.fig, "sites", pch=21, bg="transparent", col="gray", cex=indexed.covariates$lake_area*3+1)
-# points(cal.fig, "sites", pch=21, bg="transparent", col="gray", cex=indexed.covariates$shed_lake_areaRatio/10)
+       col=as.numeric(substr(row.names(tcal.asin.grouped),5,5)), cex=rescale(cal.indexed.covariates$pCO2, c(2,15))) #rescales all variables to range: 2-15
+points(cal.fig, "sites", pch=3, bg="transparent", col="gray", cex=rescale(cal.indexed.covariates$lake_area, c(2,15)))
+points(cal.fig, "sites", pch=21, bg="transparent", col="gray", cex=rescale(cal.indexed.covariates$shed_lake_areaRatio, c(2,15)))
 arrows(0,0,cal.pca$rotation[,1]*5, cal.pca$rotation[,2]*5, col="purple")
 text(cal.pca$rotation[,1]*5.8, cal.pca$rotation[,2]*5.8, row.names(cal.pca$rotation), col="purple")
 legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
@@ -1348,9 +1338,51 @@ legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
                                                             11, 7, 9, 14))
 legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
        fill=c(1, 2, 3, 4, 5))
+legend("bottom", legend=c("gray cross = lake area", "gray circle = watershed:area"))
 
 
-#left off here
+#to loop through with all covariates represented as point size:
+#NOTE caddisd15n is misrepresented.  Also note issue with CH4
+for (i in 3:34)
+{
+  cal.fig<-ordiplot(cal.pca, choices=c(1,2), type="none", xlim=c(-6,3), ylim=c(-5,4), main=paste("Cal PC1 and 2, size = ", colnames(cal.indexed.covariates)[i]))
+  points(cal.fig, "sites", pch=as.numeric(substr(row.names(tcal.asin.grouped),6,7)), 
+         col=as.numeric(substr(row.names(tcal.asin.grouped),5,5)), cex=rescale(cal.indexed.covariates[,i], c(2,15))) #rescales all variables to range: 2-15
+  points(cal.fig, "sites", pch=3, bg="transparent", col="gray", cex=rescale(cal.indexed.covariates$lake_area, c(2,15)))
+  points(cal.fig, "sites", pch=21, bg="transparent", col="gray", cex=rescale(cal.indexed.covariates$shed_lake_areaRatio, c(2,15)))
+  arrows(0,0,cal.pca$rotation[,1]*5, cal.pca$rotation[,2]*5, col="purple")
+  text(cal.pca$rotation[,1]*5.8, cal.pca$rotation[,2]*5.8, row.names(cal.pca$rotation), col="purple")
+  legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
+                             "fish", "POM", "periphyton", "filamentous", "moss", 
+                             "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
+                                                              11, 7, 9, 14))
+  legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
+         fill=c(1, 2, 3, 4, 5))
+  legend("bottom", legend=c("gray cross = lake area", "gray circle = watershedA:lakeA"))
+}
+
+#notable covariates: CO2, CH4, 
+
+#plot caddis d13c vs caddis d15n (should show inverse relationship).  (then color by lake type) and size by other covariates
+#until you find one that follows the trendline in either direction.
+
+for(i in 3:34)
+{
+  plot(cal.indexed.covariates$calanoidd13c, cal.indexed.covariates$calanoidd15n, cex=rescale(cal.indexed.covariates[,i], c(2,15)),
+       main=paste(colnames(cal.indexed.covariates)[i]), col=substr(cal.indexed.covariates$lake_ID_andClass,3,3), pch=20, ylim = c(1,5),
+       xlab = "Calanoid d13C", ylab = "Calanoid d15N")
+  text(x = cal.indexed.covariates$calanoidd13c, y = cal.indexed.covariates$calanoidd15n + 0.4, labels = cal.indexed.covariates$lake)
+  legend("topright", legend=c("puddles", "high", "milk+clear", "big"),
+         fill=c(1, 2, 3, 4))
+}
+
+#left off here: still have to plot producers by themselves
+#things to examine: pDIC and d13C-DIC
+
+# scatterplotMatrix(t(cal.indexed.covariates))
+
+
+
 
 
 
@@ -1398,3 +1430,296 @@ for(i in 1:10)
 }
 par(mar=c(4,4,4,4))
 par(mfrow=c(1,1))
+####19 - Producer PCAs ####
+
+#create FA groupings
+short_SAFA<-data[data$short_SAFA==1,c(1:5, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
+short_SAFA<-colSums(short_SAFA[,6:11], na.rm=T)
+iSAFA_etc<-data[data$iSAFA_etc==1,c(1:5, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
+iSAFA_etc<-colSums(iSAFA_etc[,6:11], na.rm=T)
+other_MUFA<-data[data$other_MUFA==1,c(1:5, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
+other_MUFA<-colSums(other_MUFA[,6:11], na.rm=T)
+LIN<-data[data$LIN==1,c(1:5, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
+LIN<-colSums(LIN[,6:11], na.rm=T)
+other_n3_n6_PUFA<-data[data$other_n3_n6_PUFA==1,c(1:5, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
+other_n3_n6_PUFA<-colSums(other_n3_n6_PUFA[,6:11], na.rm=T)
+OA_16.4n3<-data[data$OA_16.4n3==1,c(1:5, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
+OA_16.4n3<-colSums(OA_16.4n3[,6:11], na.rm=T)
+ALA_SDA<-data[data$ALA_SDA==1,c(1:5, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
+ALA_SDA<-colSums(ALA_SDA[,6:11], na.rm=T)
+long_SAFA<-data[data$long_SAFA==1,c(1:5, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
+long_SAFA<-colSums(long_SAFA[,6:11], na.rm=T)
+EPA_DHA<-data[data$EPA_DHA==1,c(1:5, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
+EPA_DHA<-colSums(EPA_DHA[,6:11], na.rm=T)
+other_PUFA<-data[data$other_PUFA==1,c(1:5, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
+other_PUFA<-colSums(other_PUFA[,6:11], na.rm=T)
+
+#grouping combination 1 (all)
+prod.grouped<-rbind(short_SAFA, iSAFA_etc, other_MUFA, LIN, other_n3_n6_PUFA, OA_16.4n3,
+                   ALA_SDA, long_SAFA, EPA_DHA, other_PUFA)
+#grouping 2 (removed "other_MUFA" and "Other PUFA")
+# cal.grouped<-rbind(short_SAFA, iSAFA_etc, LIN, other_n3_n6_PUFA, OA_16.4n3,
+#                ALA_SDA, long_SAFA, EPA_DHA)
+
+#modify the grouped data for PCA (arcsin sqrt transform and missing data replacement)
+for (i in 1:length(prod.grouped[1,]))
+{
+  for (j in 1:length(prod.grouped[,1]))
+  {
+    #replace zeros with small values
+    if (prod.grouped[j,i]==0)
+    {
+      prod.grouped[j,i]<-0.000001
+    }
+    #put data on proportional scale (0-1) and arc-sin square root transform them
+    prod.asin.grouped<-prod.grouped
+    prod.asin.grouped[j,i]<-asin(sqrt(prod.asin.grouped[j,i]/100))*(2/pi)
+  }
+}
+
+#format data for PCA
+tprod.asin.grouped<-t(as.matrix(prod.asin.grouped))
+
+#perform PCA and associated tests
+prod.pca<-prcomp(tprod.asin.grouped,scale=T, scores=T)
+#determine eigenvalues
+eigenvalues<-pca.eigenval(prod.pca)
+#see which eigenvalues are significant
+screeplot(prod.pca, bstick=T)
+#see loadings.  square these to get percentage of variance in each original variable
+#accounted for by each principal component
+structure<-pca.structure(prod.pca,tprod.asin.grouped,dim=7,cutoff=0.2)
+#sample.scores<-prod.pca$x[,1:7]
+
+#plot PCA
+#first and second principal components (counterintuitive groupings)
+prod.fig<-ordiplot(prod.pca, choices=c(1,2), type="none", xlim=c(-6,3), ylim=c(-5,4), main="prod PC1 and 2")
+points(prod.fig, "sites", pch=as.numeric(substr(row.names(tprod.asin.grouped),6,7)), 
+       col=as.numeric(substr(row.names(tprod.asin.grouped),5,5)))
+arrows(0,0,prod.pca$rotation[,1]*5, prod.pca$rotation[,2]*5, col="purple")
+text(prod.pca$rotation[,1]*5.8, prod.pca$rotation[,2]*5.8, row.names(prod.pca$rotation), col="purple")
+legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
+                           "fish", "POM", "periphyton", "filamentous", "moss", 
+                           "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
+                                                            11, 7, 9, 14))
+legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
+       fill=c(1, 2, 3, 4, 5))
+
+#first and second principal components (PC3 looks more like what I'd expect.)
+prod.fig<-ordiplot(prod.pca, choices=c(2,3), type="none", xlim=c(-6,3), ylim=c(-5,4), main="prod PC2 and 3")
+points(prod.fig, "sites", pch=as.numeric(substr(row.names(tprod.asin.grouped),6,7)), 
+       col=as.numeric(substr(row.names(tprod.asin.grouped),5,5)))
+arrows(0,0,prod.pca$rotation[,2]*5, prod.pca$rotation[,3]*5, col="purple")
+text(prod.pca$rotation[,2]*5.8, prod.pca$rotation[,3]*5.8, row.names(prod.pca$rotation), col="purple")
+legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
+                           "fish", "POM", "periphyton", "filamentous", "moss", 
+                           "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
+                                                            11, 7, 9, 14))
+legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
+       fill=c(1, 2, 3, 4, 5))
+
+########20 - Hierarchical cluster analysis functions####
+library(cluster)
+library(vegan)
+library(pvclust)
+library(NbClust)
+
+hclus.table <-
+  function(x){
+    
+    z1<-x$dist.method
+    z2<-x$method
+    z3<-seq(length(x$labels)-1,1)
+    z3<-as.data.frame(cbind(z3,x$merge,x$height))
+    colnames(z3)<-c('no. clusters','entity','entity','distance')
+    z<-list(z1,z2,z3)
+    names(z)<-c('dist.method','method','cluster.table')
+    return(z)
+  }
+
+data.trans <-
+  function(x,method,var='',exp=1,outfile='',
+           plot=TRUE,save.plot=FALSE,col.hist='blue',col.line='black',
+           las=1,lab=c(5,5,4),...){
+    
+    if(plot==TRUE){
+      old.par<-par(no.readonly=TRUE)
+    }
+    
+    if(!var==''){
+      y1<-subset(x,select=eval(parse(text=var))) #select variables to summarize
+      y2<-subset(x,select=-eval(parse(text=var))) #select remaining variables
+      t1<-y1 #copy to work file for transformations
+    }
+    else{
+      y1<-x #original variables
+      t1<-x #copy to work file for transformations
+    }
+  }
+
+hclus.cophenetic <-
+  function(d,hclus,fit='lm',...){
+    
+    old.par<-par(no.readonly=TRUE)
+    d.coph<-cophenetic(hclus)
+    r<-round(cor(d,d.coph),2)
+    plot(d,d.coph,xlab='Observed dissimilarity',
+         ylab='Cophenetic dissimilarity',
+         main=paste('Cophenetic Correlation ',
+                    '(',hclus$dist.method,', ',hclus$method,')',sep=''),...)
+    text(max(d),min(d.coph),paste('Cophenetic correlation = ',r,sep=''),col='red',pos=2)
+    #	title(sub=paste('Cophenetic correlation = ',r,sep=''),col.sub='red',adj=0)
+    if(fit=='lm'){
+      abline(lm(d.coph~d),col='blue')
+    }
+    else if(fit=='rlm'){
+      abline(rlm(d.coph~d),col='blue')
+    }
+    else if(fit=='qls'){
+      abline(lqs(d.coph~d),col='blue')
+    }
+    
+    par(old.par)
+    return(r)
+  }
+
+hclus.scree <-
+  function(x,...){
+    
+    old.par<-par(no.readonly=TRUE)
+    z1<-seq(length(x$height),1)
+    z<-as.data.frame(cbind(z1,sort(x$height)))
+    plot(z[,1],z[,2],type='o',lwd=1.5,pch=19,col='blue',
+         ylab='Dissimilarity',xlab='Number of Clusters',
+         main=paste('Scree Plot of Hierarchical Clustering ',
+                    '(',x$dist.method,', ',x$method,')',sep=''),...)
+    par(old.par)
+  }
+####21 - HCA1 (all species)####
+short_SAFA<-data[data$short_SAFA==1,c(1:5, cal.cols, clad.cols, caddis.cols, chaob.cols, fish.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
+short_SAFA<-colSums(short_SAFA[,6:42], na.rm=T)
+iSAFA_etc<-data[data$iSAFA_etc==1,c(1:5, cal.cols, clad.cols, caddis.cols, chaob.cols, fish.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
+iSAFA_etc<-colSums(iSAFA_etc[,6:42], na.rm=T)
+other_MUFA<-data[data$other_MUFA==1,c(1:5, cal.cols, clad.cols, caddis.cols, chaob.cols, fish.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
+other_MUFA<-colSums(other_MUFA[,6:42], na.rm=T)
+LIN<-data[data$LIN==1,c(1:5, cal.cols, clad.cols, caddis.cols, chaob.cols, fish.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
+LIN<-colSums(LIN[,6:42], na.rm=T)
+other_n3_n6_PUFA<-data[data$other_n3_n6_PUFA==1,c(1:5, cal.cols, clad.cols, caddis.cols, chaob.cols, fish.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
+other_n3_n6_PUFA<-colSums(other_n3_n6_PUFA[,6:42], na.rm=T)
+OA_16.4n3<-data[data$OA_16.4n3==1,c(1:5, cal.cols, clad.cols, caddis.cols, chaob.cols, fish.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
+OA_16.4n3<-colSums(OA_16.4n3[,6:42], na.rm=T)
+ALA_SDA<-data[data$ALA_SDA==1,c(1:5, cal.cols, clad.cols, caddis.cols, chaob.cols, fish.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
+ALA_SDA<-colSums(ALA_SDA[,6:42], na.rm=T)
+long_SAFA<-data[data$long_SAFA==1,c(1:5, cal.cols, clad.cols, caddis.cols, chaob.cols, fish.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
+long_SAFA<-colSums(long_SAFA[,6:42], na.rm=T)
+EPA_DHA<-data[data$EPA_DHA==1,c(1:5, cal.cols, clad.cols, caddis.cols, chaob.cols, fish.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
+EPA_DHA<-colSums(EPA_DHA[,6:42], na.rm=T)
+other_PUFA<-data[data$other_PUFA==1,c(1:5, cal.cols, clad.cols, caddis.cols, chaob.cols, fish.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
+other_PUFA<-colSums(other_PUFA[,6:42], na.rm=T)
+
+#grouping 1
+hca1.grouped<-rbind(short_SAFA, iSAFA_etc, other_MUFA, LIN, other_n3_n6_PUFA, OA_16.4n3,
+                   ALA_SDA, long_SAFA, EPA_DHA, other_PUFA)
+#grouping 2 (removed "other_MUFA" and "Other PUFA")
+# hca1.grouped<-rbind(short_SAFA, iSAFA_etc, LIN, other_n3_n6_PUFA, OA_16.4n3,
+#                ALA_SDA, long_SAFA, EPA_DHA)
+
+#make more descriptive column names
+colnames(hca1.grouped)<-c("cal C", "cal O", "cal Z", "cal Mirror", "cal Y025", "cal Y015", "cal L", "cal Clear", 
+                          "cal Morg", "cal Milk", "clad Clear", "clad Morg", "clad O", "clad L", "clad C", "clad Z", 
+                          "caddis C", "caddis C2", "caddis Milk", "caddis Mirror", "caddis Morg", "caddis Morg2", 
+                          "caddis NoName", "caddis Y015", "caddis Y025", "caddis Z", "caddis Clear", "chaob Clear", 
+                          "chaob Milk", "fish Mirror", "fish Mirror2", "POM", "peri", "filamentous", "moss", "soil", 
+                          "plant")
+
+#modify the data
+for (i in 1:length(hca1.grouped[1,]))
+{
+  for (j in 1:length(hca1.grouped[,1]))
+  {
+    #replace zeros with small values
+    if (hca1.grouped[j,i]==0)
+    {
+      hca1.grouped[j,i]<-0.000001
+    }
+    #put data on proportional scale (0-1) and arc-sin square root transform them
+    hca1.asin.grouped<-hca1.grouped
+    hca1.asin.grouped[j,i]<-asin(sqrt(hca1.asin.grouped[j,i]/100))*(2/pi)
+  }
+}
+
+#the HCA - seems like the order of these steps is wonky.  should be 1. find correct number of clusters with NbClust, 
+#2. plot, 3. highlight that number of clusters
+#create dissimilarity matrix
+hc1.distmat<-vegdist(t(hca1.asin.grouped), method="euclidean")
+#perform clustering (many other methods can be used: ward, single, average, mcquitty, median, centroid); this method is agglomerative - can use divisive ones too
+hc1.clust<-hclust(hc1.distmat, method="complete", members=NULL)
+#summary results
+  #hclus.table(hc1.clust)
+#dendrogram
+plot(hc1.clust, main="complete linkage dendrogram", xlab="species", ylab="euclidean distance", hang=-1)
+#add rectangles around clusters by specifying desired number (how to choose the number of clusters?)
+rect.hclust(hc1.clust, k=2)
+#add rectangles by specifying a euclidean distance
+  # rect.hclust(hc1.clust, h=22, border="green")
+#cut the tree into clusters (when does this get used?)
+  # hc1.classes<-cutree(hc1.clust, k=6)
+#find the agglomerative coefficient - if obs quickly aggregate and only fully unite at much greater distance, coef = 1.  if they take forever to aggregate, coef = 0
+coef.hclust(hc1.clust)
+#cophenetic correlation coefficient: if high, dendrogram is appropriate summary of "some data." if not, it's only a description of the output of the clustering algorithm.
+cor(hc1.distmat, cophenetic(hc1.clust))
+# hclus.cophenetic(hc1.distmat, hc1.clust)
+#if this screeplot has an "elbow", you should cut the tree at the number of clusters that corresponds to the elbow.  if it doesn't, try another clustering method.
+#reading from right to left (says to do this in notes), take the first number you reach before the elbow occurs (my assumption)
+hclus.scree(hc1.clust)
+#test to make sure the groupings are stable through minor perturbations of the data (removal of one point at a time); should be transposed relative to the original data arrangement
+hc1.bootstrap<-pvclust(hca1.asin.grouped, method.hclust="complete", method.dist="euclidean", nboot=200)
+#plot to highlight significant clusters (red and green are different measurements of significance. use red)
+plot(hc1.bootstrap, hang=-1)
+pvrect(hc1.bootstrap, alpha=0.99)
+#now you have to find the "optimal" number of clusters.  This function incorporates 30 different indices.  Majority rule is fine to go by, but 
+#CH, Duda, Cindex, Gamma, and Beale were shown to perform best by milligan and cooper 1985.  
+NbClust(t(hca1.asin.grouped), distance="euclidean", min.nc=2, max.nc=10, method="complete")
+par(mfrow=c(1,1))
+
+############two groups recommended.  peri, POM separate from plant, filamentous, soil.  only 1 fish, most cladocera, and chaoborus group with plant
+
+#here it is again using method=average (slightly better cophanetic cor, otherwise same) -BEST
+hc1.clust2<-hclust(hc1.distmat, method="average", members=NULL)
+  coef.hclust(hc1.clust2)
+  cor(hc1.distmat, cophenetic(hc1.clust2))
+hclus.scree(hc1.clust2)
+NbClust(t(hca1.asin.grouped), distance="euclidean", min.nc=2, max.nc=10, method="average")
+  par(mfrow=c(1,1))
+hc1.bootstrap2<-pvclust(hca1.asin.grouped, method.hclust="average", method.dist="euclidean", nboot=100)
+  plot(hc1.bootstrap2, hang=-1)
+  pvrect(hc1.bootstrap2, alpha=0.99)
+plot(hc1.clust2, main="average linkage dendrogram", xlab="species", ylab="euclidean distance", hang=-1)
+rect.hclust(hc1.clust, k=2)
+
+#here it is again using method=centroid (meh)
+hc1.clust3<-hclust(hc1.distmat, method="centroid", members=NULL)
+coef.hclust(hc1.clust3)
+cor(hc1.distmat, cophenetic(hc1.clust3))
+hclus.scree(hc1.clust3)
+NbClust(t(hca1.asin.grouped), distance="euclidean", min.nc=2, max.nc=10, method="centroid")
+par(mfrow=c(1,1))
+hc1.bootstrap3<-pvclust(hca1.asin.grouped, method.hclust="centroid", method.dist="euclidean", nboot=100)
+plot(hc1.bootstrap3, hang=-1)
+pvrect(hc1.bootstrap3, alpha=0.99)
+plot(hc1.clust3, main="centroid linkage dendrogram", xlab="species", ylab="euclidean distance", hang=-1)
+rect.hclust(hc1.clust, k=2)
+
+#here it is again using method=single (weak)
+hc1.clust4<-hclust(hc1.distmat, method="single", members=NULL)
+coef.hclust(hc1.clust4)
+cor(hc1.distmat, cophenetic(hc1.clust4))
+hclus.scree(hc1.clust4)
+NbClust(t(hca1.asin.grouped), distance="euclidean", min.nc=2, max.nc=10, method="single")
+par(mfrow=c(1,1))
+hc1.bootstrap4<-pvclust(hca1.asin.grouped, method.hclust="single", method.dist="euclidean", nboot=100)
+plot(hc1.bootstrap4, hang=-1)
+pvrect(hc1.bootstrap4, alpha=0.99)
+plot(hc1.clust4, main="single linkage dendrogram", xlab="species", ylab="euclidean distance", hang=-1)
+rect.hclust(hc1.clust, k=2)
+####22 - cal.HCA####
