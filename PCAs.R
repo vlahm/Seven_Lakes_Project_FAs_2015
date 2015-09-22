@@ -18,6 +18,7 @@ library(vioplot)
 library(vegan)
 library(plyr)
 library(plotrix)
+library(car)
 
 #FISH560 functions
 pca.eigenval <-
@@ -1307,11 +1308,12 @@ screeplot(cal.pca, bstick=T)
 #see loadings.  square these to get percentage of variance in each original variable
 #accounted for by each principal component
 structure<-pca.structure(cal.pca,tcal.asin.grouped,dim=7,cutoff=0.2)
-#sample.scores<-cal.pca$x[,1:7]
+#sample scores
+sample.scores<-cal.pca$x[,1:7]
 
 #create matrix of other covariates organized so that they can be used as cex values in the plot
-cal.indexed.covariates<-matrix(NA, nrow=length(row.names(tcal.asin.grouped)), ncol=34)
-for (i in 1:34)
+cal.indexed.covariates<-matrix(NA, nrow=length(row.names(tcal.asin.grouped)), ncol=35)
+for (i in 1:35)
 {
   for (j in 1:length(row.names(tcal.asin.grouped)))
   {
@@ -1343,7 +1345,7 @@ legend("bottom", legend=c("gray cross = lake area", "gray circle = watershed:are
 
 #to loop through with all covariates represented as point size:
 #NOTE caddisd15n is misrepresented.  Also note issue with CH4
-for (i in 3:34)
+for (i in 3:35)
 {
   cal.fig<-ordiplot(cal.pca, choices=c(1,2), type="none", xlim=c(-6,3), ylim=c(-5,4), main=paste("Cal PC1 and 2, size = ", colnames(cal.indexed.covariates)[i]))
   points(cal.fig, "sites", pch=as.numeric(substr(row.names(tcal.asin.grouped),6,7)), 
@@ -1366,7 +1368,7 @@ for (i in 3:34)
 #plot caddis d13c vs caddis d15n (should show inverse relationship).  (then color by lake type) and size by other covariates
 #until you find one that follows the trendline in either direction.
 
-for(i in 3:34)
+for(i in 3:35)
 {
   plot(cal.indexed.covariates$calanoidd13c, cal.indexed.covariates$calanoidd15n, cex=rescale(cal.indexed.covariates[,i], c(2,15)),
        main=paste(colnames(cal.indexed.covariates)[i]), col=substr(cal.indexed.covariates$lake_ID_andClass,3,3), pch=20, ylim = c(1,5),
@@ -1375,17 +1377,6 @@ for(i in 3:34)
   legend("topright", legend=c("puddles", "high", "milk+clear", "big"),
          fill=c(1, 2, 3, 4))
 }
-
-#left off here: still have to plot producers by themselves
-#things to examine: pDIC and d13C-DIC
-
-# scatterplotMatrix(t(cal.indexed.covariates))
-
-
-
-
-
-
 
 
 #plotting 3rd and 4th principal components
@@ -1401,11 +1392,6 @@ legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"
        fill=c(1, 2, 3, 4, 5))
 
 #are there obvious differences among the frequency distributions?
-
-# #vio.data is the same as dist.data
-# vioplot(vio.data[,cal.cols[1]], vio.data[,cal.cols[2]], vio.data[,cal.cols[3]], vio.data[,cal.cols[4]], vio.data[,cal.cols[5]], 
-#         vio.data[,cal.cols[6]], vio.data[,cal.cols[7]], vio.data[,cal.cols[8]], vio.data[,cal.cols[9]], vio.data[,cal.cols[10]], 
-#         names=(colnames(vio.data[,cal.cols])), h=3, wex=1)
 
 par(mar=c(0,5,0,0))
 par(mfrow=c(10,1))
@@ -1430,6 +1416,43 @@ for(i in 1:10)
 }
 par(mar=c(4,4,4,4))
 par(mfrow=c(1,1))
+
+#### plotting covariates with PC1
+for(i in 3:35)
+{
+  plot(sample.scores[,1], cal.indexed.covariates[,i], xlim=c(-4,4),
+       main=paste(colnames(cal.indexed.covariates)[i]), col=substr(cal.indexed.covariates$lake_ID_andClass,3,3), pch=20, cex=3,
+       xlab = "PC1", ylab = paste(colnames(cal.indexed.covariates)[i]))
+  text(x = sample.scores[,1]+0.5, y = cal.indexed.covariates[,i], labels = cal.indexed.covariates$lake)
+#   legend("topright", legend=c("puddles", "high", "milk+clear", "big"),
+#          fill=c(1, 2, 3, 4))
+}
+
+for(i in 3:35)
+{
+  plot(cal.indexed.covariates$color_chlA, cal.indexed.covariates[,i],
+       main=paste("color:chl-a X ", colnames(cal.indexed.covariates)[i]), col=substr(cal.indexed.covariates$lake_ID_andClass,3,3), pch=20, cex=3,
+       xlab = "color:chlorophyll-a", ylab = paste(colnames(cal.indexed.covariates)[i]))
+  text(x = cal.indexed.covariates$color_chlA + 0.008, y = cal.indexed.covariates[,i], labels = cal.indexed.covariates$lake)
+}
+
+#test for correlations among the covariates that seem to diverge between the ponds and the other lakes when plotted against PC1
+cor(cal.indexed.covariates[,c(4,6,11,14,24,29,34)])
+scatterplotMatrix(cal.indexed.covariates[,c(4,6,11,14,24,29,34)], reg.line=F, smooth=F, spread=F, diagonal='density', id.n=0, span=0.5)
+#see log for 9/22 to see how I resolved this
+
+#### plotting covariates with PC1 JUST FOR THE NON-PUDDLES
+for(i in 3:35)
+{
+  plot(sample.scores[,1][-c(1,2,3,7)], cal.indexed.covariates[,i][-c(1,2,3,7)], xlim=c(-4,4),
+       main=paste(colnames(cal.indexed.covariates)[i]), col=substr(cal.indexed.covariates$lake_ID_andClass,3,3)[-c(1,2,3,7)], pch=20, cex=3,
+       xlab = "PC1", ylab = paste(colnames(cal.indexed.covariates)[i]))
+  text(x = sample.scores[,1][-c(1,2,3,7)]+0.5, y = cal.indexed.covariates[,i][-c(1,2,3,7)], labels = cal.indexed.covariates$lake[-c(1,2,3,7)])
+}
+
+scatterplotMatrix(cal.indexed.covariates[-c(1,2,3,7),c(6,11,15,16,29,34)], reg.line=F, smooth=F, spread=F, diagonal='density', id.n=0, span=0.5)
+
+
 ####19 - Producer PCAs ####
 
 #create FA groupings
