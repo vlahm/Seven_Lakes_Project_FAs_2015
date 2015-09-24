@@ -1327,20 +1327,19 @@ cal.indexed.covariates[,1]<-c("C", "O", "Z", "Mirror", "Y025", "Y015", "L", "Cle
 
 #plot PCA
 #first and second principal components (showing watershed area:lake area ratio)
-cal.fig<-ordiplot(cal.pca, choices=c(1,2), type="none", xlim=c(-6,3), ylim=c(-5,4), main="Cal PC1 and 2")
+cal.fig<-ordiplot(cal.pca, choices=c(1,2), type="none", xlim=c(-4,3), ylim=c(-3,4), main="Calanoid PCA, sized by watershed:lake area ratio")
 points(cal.fig, "sites", pch=as.numeric(substr(row.names(tcal.asin.grouped),6,7)), 
-       col=as.numeric(substr(row.names(tcal.asin.grouped),5,5)), cex=rescale(cal.indexed.covariates$pCO2, c(2,15))) #rescales all variables to range: 2-15
-points(cal.fig, "sites", pch=3, bg="transparent", col="gray", cex=rescale(cal.indexed.covariates$lake_area, c(2,15)))
-points(cal.fig, "sites", pch=21, bg="transparent", col="gray", cex=rescale(cal.indexed.covariates$shed_lake_areaRatio, c(2,15)))
+       col=as.numeric(substr(row.names(tcal.asin.grouped),5,5)), cex=rescale(cal.indexed.covariates$shed_lake_areaRatio, c(2,15))) #rescales all variables to range: 2-15
+# points(cal.fig, "sites", pch=3, bg="transparent", col="gray", cex=rescale(cal.indexed.covariates$lake_area, c(2,15)))
+# points(cal.fig, "sites", pch=21, bg="transparent", col="gray", cex=rescale(cal.indexed.covariates$shed_lake_areaRatio, c(2,15)))
 arrows(0,0,cal.pca$rotation[,1]*5, cal.pca$rotation[,2]*5, col="purple")
 text(cal.pca$rotation[,1]*5.8, cal.pca$rotation[,2]*5.8, row.names(cal.pca$rotation), col="purple")
-legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
-                           "fish", "POM", "periphyton", "filamentous", "moss", 
-                           "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
-                                                            11, 7, 9, 14))
-legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
-       fill=c(1, 2, 3, 4, 5))
-legend("bottom", legend=c("gray cross = lake area", "gray circle = watershed:area"))
+# legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
+#                            "fish", "POM", "periphyton", "filamentous", "moss", 
+#                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4, 11, 7, 9, 14))
+legend("bottomleft", legend=c("small forested", "med forested", "large forested", "unforested"),
+       fill=c(1, 3, 4, 2))
+# legend("bottom", legend=c("gray cross = lake area", "gray circle = watershed:area"))
 
 
 #to loop through with all covariates represented as point size:
@@ -1399,19 +1398,21 @@ for(i in 1:10)
 {
   if (substr(colnames(dist.data[cal.cols[i]]),5,5)==1)
   {
-    plot(dist.data[,cal.cols[i]], type="l", ylab=colnames(dist.data[cal.cols[i]]), xlab="", col="blue")
+    plot(dist.data[,cal.cols[i]], type="o", ylab=colnames(dist.data[cal.cols[i]]), xlab="", col="black", xaxt="n")
   }  
   else if (substr(colnames(dist.data[cal.cols[i]]),5,5)==2)
   {
-    plot(dist.data[,cal.cols[i]], type="l", ylab=colnames(dist.data[cal.cols[i]]), xlab="", col="red")
+    plot(dist.data[,cal.cols[i]], type="o", ylab=colnames(dist.data[cal.cols[i]]), xlab="", col="red", xaxt="n")
   } 
   else if (substr(colnames(dist.data[cal.cols[i]]),5,5)==3)
   {
-    plot(dist.data[,cal.cols[i]], type="l", ylab=colnames(dist.data[cal.cols[i]]), xlab="", col="black")
+    plot(dist.data[,cal.cols[i]], type="o", ylab=colnames(dist.data[cal.cols[i]]), xlab="", col="green", xaxt="n")
   }
   else if (substr(colnames(dist.data[cal.cols[i]]),5,5)==4)
   {
-    plot(dist.data[,cal.cols[i]], type="l", ylab=colnames(dist.data[cal.cols[i]]), xlab="", col="green")
+    plot(dist.data[,cal.cols[i]], type="o", ylab=colnames(dist.data[cal.cols[i]]), xlab="", col="blue", xaxt="n")
+    axis(side=1, at=c(4,6,8,10,12,16,22,26,28,33,34,35,38,41,42,43,50,52,56,58,60), 
+         labels=dist.data$FA_name[c(4,6,8,10,12,16,22,26,28,33,34,35,38,41,42,43,50,52,56,58,60)], las=2)
   }
 }
 par(mar=c(4,4,4,4))
@@ -1451,9 +1452,419 @@ for(i in 3:35)
 }
 
 scatterplotMatrix(cal.indexed.covariates[-c(1,2,3,7),c(6,11,15,16,29,34)], reg.line=F, smooth=F, spread=F, diagonal='density', id.n=0, span=0.5)
+####19 - Caddis PCA etc. ####
+
+#create FA groupings
+short_SAFA<-data[data$short_SAFA==1,c(1:5, caddis.cols)]
+short_SAFA<-colSums(short_SAFA[,6:16], na.rm=T)
+iSAFA_etc<-data[data$iSAFA_etc==1,c(1:5, caddis.cols)]
+iSAFA_etc<-colSums(iSAFA_etc[,6:16], na.rm=T)
+other_MUFA<-data[data$other_MUFA==1,c(1:5, caddis.cols)]
+other_MUFA<-colSums(other_MUFA[,6:16], na.rm=T)
+LIN<-data[data$LIN==1,c(1:5, caddis.cols)]
+LIN<-colSums(LIN[,6:16], na.rm=T)
+other_n3_n6_PUFA<-data[data$other_n3_n6_PUFA==1,c(1:5, caddis.cols)]
+other_n3_n6_PUFA<-colSums(other_n3_n6_PUFA[,6:16], na.rm=T)
+OA_16.4n3<-data[data$OA_16.4n3==1,c(1:5, caddis.cols)]
+OA_16.4n3<-colSums(OA_16.4n3[,6:16], na.rm=T)
+ALA_SDA<-data[data$ALA_SDA==1,c(1:5, caddis.cols)]
+ALA_SDA<-colSums(ALA_SDA[,6:16], na.rm=T)
+long_SAFA<-data[data$long_SAFA==1,c(1:5, caddis.cols)]
+long_SAFA<-colSums(long_SAFA[,6:16], na.rm=T)
+EPA_DHA<-data[data$EPA_DHA==1,c(1:5, caddis.cols)]
+EPA_DHA<-colSums(EPA_DHA[,6:16], na.rm=T)
+other_PUFA<-data[data$other_PUFA==1,c(1:5, caddis.cols)]
+other_PUFA<-colSums(other_PUFA[,6:16], na.rm=T)
+
+#grouping combination 1 (all)
+caddis.grouped<-rbind(short_SAFA, iSAFA_etc, other_MUFA, LIN, other_n3_n6_PUFA, OA_16.4n3,
+                   ALA_SDA, long_SAFA, EPA_DHA, other_PUFA)
+#grouping 2 (removed "other_MUFA" and "Other PUFA")
+# caddis.grouped<-rbind(short_SAFA, iSAFA_etc, LIN, other_n3_n6_PUFA, OA_16.4n3,
+#                ALA_SDA, long_SAFA, EPA_DHA)
+
+#modify the grouped data for PCA (arcsin sqrt transform and missing data replacement)
+for (i in 1:length(caddis.grouped[1,]))
+{
+  for (j in 1:length(caddis.grouped[,1]))
+  {
+    #replace zeros with small values
+    if (caddis.grouped[j,i]==0)
+    {
+      caddis.grouped[j,i]<-0.000001
+    }
+    #put data on proportional scale (0-1) and arc-sin square root transform them
+    caddis.asin.grouped<-caddis.grouped
+    caddis.asin.grouped[j,i]<-asin(sqrt(caddis.asin.grouped[j,i]/100))*(2/pi)
+  }
+}
+
+#format data for PCA
+tcaddis.asin.grouped<-t(as.matrix(caddis.asin.grouped))
+
+#perform PCA and associated tests
+caddis.pca<-prcomp(tcaddis.asin.grouped,scale=T, scores=T)
+#determine eigenvalues
+eigenvalues<-pca.eigenval(caddis.pca)
+#see which eigenvalues are significant
+screeplot(caddis.pca, bstick=T)
+#see loadings.  square these to get percentage of variance in each original variable
+#accounted for by each principal component
+structure<-pca.structure(caddis.pca,tcaddis.asin.grouped,dim=7,cutoff=0.2)
+#sample scores
+sample.scores<-caddis.pca$x[,1:7]
+
+#create matrix of other covariates organized so that they can be used as cex values in the plot
+caddis.indexed.covariates<-matrix(NA, nrow=length(row.names(tcaddis.asin.grouped)), ncol=35)
+for (i in 1:35)
+{
+  for (j in 1:length(row.names(tcaddis.asin.grouped)))
+  {
+    #read lake_ID(but not class) off alldata and match it to lake ID in the indexed covariates
+    caddis.indexed.covariates[j,i]<-alldata[1:11,i][substr(alldata$lake_ID_andClass[1:11],1,2)==(as.numeric(substr(row.names(tcaddis.asin.grouped),8,9))[j])]
+  }
+}
+caddis.indexed.covariates<-as.data.frame(caddis.indexed.covariates)
+colnames(caddis.indexed.covariates)<-colnames(alldata)
+caddis.indexed.covariates[,1]<-c("C", "O", "Z", "Mirror", "Y025", "Y015", "L", "Clear", "Morgenroth", "Milk")
+
+#plot PC 1 and 2
+#first and second principal components (showing watershed area:lake area ratio)
+caddis.fig<-ordiplot(caddis.pca, choices=c(1,2), type="none", xlim=c(-4,3), ylim=c(-4,4), main="Caddis PC 1 and 2, sized by watershed:lake area ratio")
+points(caddis.fig, "sites", pch=20, 
+       col=as.numeric(substr(row.names(tcaddis.asin.grouped),5,5)), cex=rescale(caddis.indexed.covariates$shed_lake_areaRatio, c(2,15))) #rescales all variables to range: 2-15
+# points(caddis.fig, "sites", pch=3, bg="transparent", col="gray", cex=rescale(caddis.indexed.covariates$lake_area, c(2,15)))
+# points(caddis.fig, "sites", pch=21, bg="transparent", col="gray", cex=rescale(caddis.indexed.covariates$shed_lake_areaRatio, c(2,15)))
+arrows(0,0,caddis.pca$rotation[,1]*5, caddis.pca$rotation[,2]*5, col="purple")
+text(caddis.pca$rotation[,1]*5.8, caddis.pca$rotation[,2]*5.8, row.names(caddis.pca$rotation), col="purple")
+# legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
+#                            "fish", "POM", "periphyton", "filamentous", "moss", 
+#                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4, 11, 7, 9, 14))
+legend("bottomleft", legend=c("small forested", "med forested", "large forested", "unforested"),
+       fill=c(1, 3, 4, 2))
+# legend("bottom", legend=c("gray cross = lake area", "gray circle = watershed:area"))
+
+#plot PC 1 and 3
+#first and second principal components (showing watershed area:lake area ratio)
+caddis.fig<-ordiplot(caddis.pca, choices=c(1,3), type="none", xlim=c(-4,3), ylim=c(-4,5), main="Caddis PC 1 and 3, sized by watershed:lake area ratio")
+points(caddis.fig, "sites", pch=20, 
+       col=as.numeric(substr(row.names(tcaddis.asin.grouped),5,5)), cex=rescale(caddis.indexed.covariates$shed_lake_areaRatio, c(2,15))) #rescales all variables to range: 2-15
+arrows(0,0,caddis.pca$rotation[,1]*5, caddis.pca$rotation[,3]*5, col="purple")
+text(caddis.pca$rotation[,1]*5.8, caddis.pca$rotation[,3]*5.8, row.names(caddis.pca$rotation), col="purple")
+legend("bottomleft", legend=c("small forested", "med forested", "large forested", "unforested"),
+       fill=c(1, 3, 4, 2))
+
+#to loop through with all covariates represented as point size:
+#NOTE caddisd15n is misrepresented.  Also note issue with CH4
+for (i in 3:35)
+{
+  caddis.fig<-ordiplot(caddis.pca, choices=c(1,2), type="none", xlim=c(-6,3), ylim=c(-5,4), main=paste("caddis PC1 and 2, size = ", colnames(caddis.indexed.covariates)[i]))
+  points(caddis.fig, "sites", pch=as.numeric(substr(row.names(tcaddis.asin.grouped),6,7)), 
+         col=as.numeric(substr(row.names(tcaddis.asin.grouped),5,5)), cex=rescale(caddis.indexed.covariates[,i], c(2,15))) #rescales all variables to range: 2-15
+  points(caddis.fig, "sites", pch=3, bg="transparent", col="gray", cex=rescale(caddis.indexed.covariates$lake_area, c(2,15)))
+  points(caddis.fig, "sites", pch=21, bg="transparent", col="gray", cex=rescale(caddis.indexed.covariates$shed_lake_areaRatio, c(2,15)))
+  arrows(0,0,caddis.pca$rotation[,1]*5, caddis.pca$rotation[,2]*5, col="purple")
+  text(caddis.pca$rotation[,1]*5.8, caddis.pca$rotation[,2]*5.8, row.names(caddis.pca$rotation), col="purple")
+  legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
+                             "fish", "POM", "periphyton", "filamentous", "moss", 
+                             "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
+                                                              11, 7, 9, 14))
+  legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
+         fill=c(1, 2, 3, 4, 5))
+  legend("bottom", legend=c("gray cross = lake area", "gray circle = watershedA:lakeA"))
+}
+
+#notable covariates: CO2, CH4, 
+
+#plot caddis d13c vs caddis d15n (should show inverse relationship).  (then color by lake type) and size by other covariates
+#until you find one that follows the trendline in either direction.
+
+for(i in 3:35)
+{
+  plot(caddis.indexed.covariates$caddisd13c, caddis.indexed.covariates$caddisd15n, cex=rescale(caddis.indexed.covariates[,i], c(2,15)),
+       main=paste(colnames(caddis.indexed.covariates)[i]), col=substr(caddis.indexed.covariates$lake_ID_andClass,3,3), pch=20, ylim = c(1,5),
+       xlab = "caddis d13C", ylab = "caddis d15N")
+  text(x = caddis.indexed.covariates$caddisd13c, y = caddis.indexed.covariates$caddisd15n + 0.4, labels = caddis.indexed.covariates$lake)
+  legend("topright", legend=c("puddles", "high", "milk+clear", "big"),
+         fill=c(1, 2, 3, 4))
+}
 
 
-####19 - Producer PCAs ####
+#plotting 3rd and 4th principal components
+caddis.fig<-ordiplot(caddis.pca, choices=c(3,4), type="none", xlim=c(-4,4), ylim=c(-4,4), main="caddis PC3 and 4")
+points(caddis.fig, "sites", pch=as.numeric(substr(row.names(tcaddis.asin.grouped),6,7)), col=as.numeric(substr(row.names(tcaddis.asin.grouped),5,5)))
+arrows(0,0,caddis.pca$rotation[,3]*5, caddis.pca$rotation[,4]*5, col="black")
+text(caddis.pca$rotation[,3]*5.8, caddis.pca$rotation[,4]*5.8, row.names(caddis.pca$rotation))
+legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
+                           "fish", "POM", "periphyton", "filamentous", "moss", 
+                           "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
+                                                            11, 7, 9, 14))
+legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
+       fill=c(1, 2, 3, 4, 5))
+
+#are there obvious differences among the frequency distributions?
+
+par(mar=c(0,5,0,0))
+par(mfrow=c(10,1))
+for(i in 1:10)
+{
+  if (substr(colnames(dist.data[caddis.cols[i]]),5,5)==1)
+  {
+    plot(dist.data[,caddis.cols[i]], type="l", ylab=colnames(dist.data[caddis.cols[i]]), xlab="", col="blue")
+  }  
+  else if (substr(colnames(dist.data[caddis.cols[i]]),5,5)==2)
+  {
+    plot(dist.data[,caddis.cols[i]], type="l", ylab=colnames(dist.data[caddis.cols[i]]), xlab="", col="red")
+  } 
+  else if (substr(colnames(dist.data[caddis.cols[i]]),5,5)==3)
+  {
+    plot(dist.data[,caddis.cols[i]], type="l", ylab=colnames(dist.data[caddis.cols[i]]), xlab="", col="black")
+  }
+  else if (substr(colnames(dist.data[caddis.cols[i]]),5,5)==4)
+  {
+    plot(dist.data[,caddis.cols[i]], type="l", ylab=colnames(dist.data[caddis.cols[i]]), xlab="", col="green")
+  }
+}
+par(mar=c(4,4,4,4))
+par(mfrow=c(1,1))
+
+#### plotting covariates with PC1
+for(i in 3:35)
+{
+  plot(sample.scores[,1], caddis.indexed.covariates[,i], xlim=c(-4,4),
+       main=paste(colnames(caddis.indexed.covariates)[i]), col=substr(caddis.indexed.covariates$lake_ID_andClass,3,3), pch=20, cex=3,
+       xlab = "PC1", ylab = paste(colnames(caddis.indexed.covariates)[i]))
+  text(x = sample.scores[,1]+0.5, y = caddis.indexed.covariates[,i], labels = caddis.indexed.covariates$lake)
+  #   legend("topright", legend=c("puddles", "high", "milk+clear", "big"),
+  #          fill=c(1, 2, 3, 4))
+}
+
+for(i in 3:35)
+{
+  plot(caddis.indexed.covariates$color_chlA, caddis.indexed.covariates[,i],
+       main=paste("color:chl-a X ", colnames(caddis.indexed.covariates)[i]), col=substr(caddis.indexed.covariates$lake_ID_andClass,3,3), pch=20, cex=3,
+       xlab = "color:chlorophyll-a", ylab = paste(colnames(caddis.indexed.covariates)[i]))
+  text(x = caddis.indexed.covariates$color_chlA + 0.008, y = caddis.indexed.covariates[,i], labels = caddis.indexed.covariates$lake)
+}
+
+#test for correlations among the covariates that seem to diverge between the ponds and the other lakes when plotted against PC1
+cor(caddis.indexed.covariates[,c(4,6,11,14,24,29,34)])
+scatterplotMatrix(caddis.indexed.covariates[,c(4,6,11,14,24,29,34)], reg.line=F, smooth=F, spread=F, diagonal='density', id.n=0, span=0.5)
+#see log for 9/22 to see how I resolved this
+
+#### plotting covariates with PC1 JUST FOR THE NON-PUDDLES
+for(i in 3:35)
+{
+  plot(sample.scores[,1][-c(1,2,3,7)], caddis.indexed.covariates[,i][-c(1,2,3,7)], xlim=c(-4,4),
+       main=paste(colnames(caddis.indexed.covariates)[i]), col=substr(caddis.indexed.covariates$lake_ID_andClass,3,3)[-c(1,2,3,7)], pch=20, cex=3,
+       xlab = "PC1", ylab = paste(colnames(caddis.indexed.covariates)[i]))
+  text(x = sample.scores[,1][-c(1,2,3,7)]+0.5, y = caddis.indexed.covariates[,i][-c(1,2,3,7)], labels = caddis.indexed.covariates$lake[-c(1,2,3,7)])
+}
+
+scatterplotMatrix(caddis.indexed.covariates[-c(1,2,3,7),c(6,11,15,16,29,34)], reg.line=F, smooth=F, spread=F, diagonal='density', id.n=0, span=0.5)
+####20 - Cladocera PCA etc. ####
+
+#create FA groupings
+short_SAFA<-data[data$short_SAFA==1,c(1:5, clad.cols)]
+short_SAFA<-colSums(short_SAFA[,6:11], na.rm=T)
+iSAFA_etc<-data[data$iSAFA_etc==1,c(1:5, clad.cols)]
+iSAFA_etc<-colSums(iSAFA_etc[,6:11], na.rm=T)
+other_MUFA<-data[data$other_MUFA==1,c(1:5, clad.cols)]
+other_MUFA<-colSums(other_MUFA[,6:11], na.rm=T)
+LIN<-data[data$LIN==1,c(1:5, clad.cols)]
+LIN<-colSums(LIN[,6:11], na.rm=T)
+other_n3_n6_PUFA<-data[data$other_n3_n6_PUFA==1,c(1:5, clad.cols)]
+other_n3_n6_PUFA<-colSums(other_n3_n6_PUFA[,6:11], na.rm=T)
+OA_16.4n3<-data[data$OA_16.4n3==1,c(1:5, clad.cols)]
+OA_16.4n3<-colSums(OA_16.4n3[,6:11], na.rm=T)
+ALA_SDA<-data[data$ALA_SDA==1,c(1:5, clad.cols)]
+ALA_SDA<-colSums(ALA_SDA[,6:11], na.rm=T)
+long_SAFA<-data[data$long_SAFA==1,c(1:5, clad.cols)]
+long_SAFA<-colSums(long_SAFA[,6:11], na.rm=T)
+EPA_DHA<-data[data$EPA_DHA==1,c(1:5, clad.cols)]
+EPA_DHA<-colSums(EPA_DHA[,6:11], na.rm=T)
+other_PUFA<-data[data$other_PUFA==1,c(1:5, clad.cols)]
+other_PUFA<-colSums(other_PUFA[,6:11], na.rm=T)
+
+#grouping combination 1 (all)
+clad.grouped<-rbind(short_SAFA, iSAFA_etc, other_MUFA, LIN, other_n3_n6_PUFA, OA_16.4n3,
+                   ALA_SDA, long_SAFA, EPA_DHA, other_PUFA)
+#grouping 2 (removed "other_MUFA" and "Other PUFA")
+# clad.grouped<-rbind(short_SAFA, iSAFA_etc, LIN, other_n3_n6_PUFA, OA_16.4n3,
+#                ALA_SDA, long_SAFA, EPA_DHA)
+
+#modify the grouped data for PCA (arcsin sqrt transform and missing data replacement)
+for (i in 1:length(clad.grouped[1,]))
+{
+  for (j in 1:length(clad.grouped[,1]))
+  {
+    #replace zeros with small values
+    if (clad.grouped[j,i]==0)
+    {
+      clad.grouped[j,i]<-0.000001
+    }
+    #put data on proportional scale (0-1) and arc-sin square root transform them
+    clad.asin.grouped<-clad.grouped
+    clad.asin.grouped[j,i]<-asin(sqrt(clad.asin.grouped[j,i]/100))*(2/pi)
+  }
+}
+
+#format data for PCA
+tcal.asin.grouped<-t(as.matrix(clad.asin.grouped))
+
+#perform PCA and associated tests
+clad.pca<-prcomp(tcal.asin.grouped,scale=T, scores=T)
+#determine eigenvalues
+eigenvalues<-pca.eigenval(clad.pca)
+#see which eigenvalues are significant
+screeplot(clad.pca, bstick=T)
+#see loadings.  square these to get percentage of variance in each original variable
+#accounted for by each principal component
+structure<-pca.structure(clad.pca,tcal.asin.grouped,dim=7,cutoff=0.2)
+#sample scores
+sample.scores<-clad.pca$x[,1:7]
+
+#create matrix of other covariates organized so that they can be used as cex values in the plot
+clad.indexed.covariates<-matrix(NA, nrow=length(row.names(tcal.asin.grouped)), ncol=35)
+for (i in 1:35)
+{
+  for (j in 1:length(row.names(tcal.asin.grouped)))
+  {
+    #read lake_ID(but not class) off alldata and match it to lake ID in the indexed covariates
+    clad.indexed.covariates[j,i]<-alldata[1:11,i][substr(alldata$lake_ID_andClass[1:11],1,2)==(as.numeric(substr(row.names(tcal.asin.grouped),8,9))[j])]
+  }
+}
+clad.indexed.covariates<-as.data.frame(clad.indexed.covariates)
+colnames(clad.indexed.covariates)<-colnames(alldata)
+clad.indexed.covariates[,1]<-c("C", "O", "Z", "Mirror", "Y025", "Y015", "L", "Clear", "Morgenroth", "Milk")
+
+#plot PCA
+#first and second principal components (showing watershed area:lake area ratio)
+clad.fig<-ordiplot(clad.pca, choices=c(1,2), type="none", xlim=c(-4,4), ylim=c(-3,3), main="Calanoid PCA, sized by watershed:lake area ratio")
+points(clad.fig, "sites", pch=20, 
+       col=as.numeric(substr(row.names(tcal.asin.grouped),5,5)), cex=rescale(clad.indexed.covariates$shed_lake_areaRatio, c(2,15))) #rescales all variables to range: 2-15
+# points(clad.fig, "sites", pch=3, bg="transparent", col="gray", cex=rescale(clad.indexed.covariates$lake_area, c(2,15)))
+# points(clad.fig, "sites", pch=21, bg="transparent", col="gray", cex=rescale(clad.indexed.covariates$shed_lake_areaRatio, c(2,15)))
+arrows(0,0,clad.pca$rotation[,1]*5, clad.pca$rotation[,2]*5, col="purple")
+text(clad.pca$rotation[,1]*5.8, clad.pca$rotation[,2]*5.8, row.names(clad.pca$rotation), col="purple")
+# legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
+#                            "fish", "POM", "periphyton", "filamentous", "moss", 
+#                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4, 11, 7, 9, 14))
+legend("bottomleft", legend=c("small forested", "med forested", "large forested", "unforested"),
+       fill=c(1, 3, 4, 2))
+# legend("bottom", legend=c("gray cross = lake area", "gray circle = watershed:area"))
+
+
+#to loop through with all covariates represented as point size:
+#NOTE caddisd15n is misrepresented.  Also note issue with CH4
+for (i in 3:35)
+{
+  clad.fig<-ordiplot(clad.pca, choices=c(1,2), type="none", xlim=c(-6,3), ylim=c(-5,4), main=paste("clad PC1 and 2, size = ", colnames(clad.indexed.covariates)[i]))
+  points(clad.fig, "sites", pch=as.numeric(substr(row.names(tcal.asin.grouped),6,7)), 
+         col=as.numeric(substr(row.names(tcal.asin.grouped),5,5)), cex=rescale(clad.indexed.covariates[,i], c(2,15))) #rescales all variables to range: 2-15
+  points(clad.fig, "sites", pch=3, bg="transparent", col="gray", cex=rescale(clad.indexed.covariates$lake_area, c(2,15)))
+  points(clad.fig, "sites", pch=21, bg="transparent", col="gray", cex=rescale(clad.indexed.covariates$shed_lake_areaRatio, c(2,15)))
+  arrows(0,0,clad.pca$rotation[,1]*5, clad.pca$rotation[,2]*5, col="purple")
+  text(clad.pca$rotation[,1]*5.8, clad.pca$rotation[,2]*5.8, row.names(clad.pca$rotation), col="purple")
+  legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
+                             "fish", "POM", "periphyton", "filamentous", "moss", 
+                             "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
+                                                              11, 7, 9, 14))
+  legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
+         fill=c(1, 2, 3, 4, 5))
+  legend("bottom", legend=c("gray cross = lake area", "gray circle = watershedA:lakeA"))
+}
+
+#notable covariates: CO2, CH4, 
+
+#plot caddis d13c vs caddis d15n (should show inverse relationship).  (then color by lake type) and size by other covariates
+#until you find one that follows the trendline in either direction.
+
+for(i in 3:35)
+{
+  plot(clad.indexed.covariates$calanoidd13c, clad.indexed.covariates$calanoidd15n, cex=rescale(clad.indexed.covariates[,i], c(2,15)),
+       main=paste(colnames(clad.indexed.covariates)[i]), col=substr(clad.indexed.covariates$lake_ID_andClass,3,3), pch=20, ylim = c(1,5),
+       xlab = "Calanoid d13C", ylab = "Calanoid d15N")
+  text(x = clad.indexed.covariates$calanoidd13c, y = clad.indexed.covariates$calanoidd15n + 0.4, labels = clad.indexed.covariates$lake)
+  legend("topright", legend=c("puddles", "high", "milk+clear", "big"),
+         fill=c(1, 2, 3, 4))
+}
+
+
+#plotting 3rd and 4th principal components
+clad.fig<-ordiplot(clad.pca, choices=c(3,4), type="none", xlim=c(-4,4), ylim=c(-4,4), main="clad PC3 and 4")
+points(clad.fig, "sites", pch=as.numeric(substr(row.names(tcal.asin.grouped),6,7)), col=as.numeric(substr(row.names(tcal.asin.grouped),5,5)))
+arrows(0,0,clad.pca$rotation[,3]*5, clad.pca$rotation[,4]*5, col="black")
+text(clad.pca$rotation[,3]*5.8, clad.pca$rotation[,4]*5.8, row.names(clad.pca$rotation))
+legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
+                           "fish", "POM", "periphyton", "filamentous", "moss", 
+                           "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
+                                                            11, 7, 9, 14))
+legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
+       fill=c(1, 2, 3, 4, 5))
+
+#are there obvious differences among the frequency distributions?
+
+par(mar=c(0,5,0,0))
+par(mfrow=c(10,1))
+for(i in 1:10)
+{
+  if (substr(colnames(dist.data[clad.cols[i]]),5,5)==1)
+  {
+    plot(dist.data[,clad.cols[i]], type="l", ylab=colnames(dist.data[clad.cols[i]]), xlab="", col="blue")
+  }  
+  else if (substr(colnames(dist.data[clad.cols[i]]),5,5)==2)
+  {
+    plot(dist.data[,clad.cols[i]], type="l", ylab=colnames(dist.data[clad.cols[i]]), xlab="", col="red")
+  } 
+  else if (substr(colnames(dist.data[clad.cols[i]]),5,5)==3)
+  {
+    plot(dist.data[,clad.cols[i]], type="l", ylab=colnames(dist.data[clad.cols[i]]), xlab="", col="black")
+  }
+  else if (substr(colnames(dist.data[clad.cols[i]]),5,5)==4)
+  {
+    plot(dist.data[,clad.cols[i]], type="l", ylab=colnames(dist.data[clad.cols[i]]), xlab="", col="green")
+  }
+}
+par(mar=c(4,4,4,4))
+par(mfrow=c(1,1))
+
+#### plotting covariates with PC1
+for(i in 3:35)
+{
+  plot(sample.scores[,1], clad.indexed.covariates[,i], xlim=c(-4,4),
+       main=paste(colnames(clad.indexed.covariates)[i]), col=substr(clad.indexed.covariates$lake_ID_andClass,3,3), pch=20, cex=3,
+       xlab = "PC1", ylab = paste(colnames(clad.indexed.covariates)[i]))
+  text(x = sample.scores[,1]+0.5, y = clad.indexed.covariates[,i], labels = clad.indexed.covariates$lake)
+  #   legend("topright", legend=c("puddles", "high", "milk+clear", "big"),
+  #          fill=c(1, 2, 3, 4))
+}
+
+for(i in 3:35)
+{
+  plot(clad.indexed.covariates$color_chlA, clad.indexed.covariates[,i],
+       main=paste("color:chl-a X ", colnames(clad.indexed.covariates)[i]), col=substr(clad.indexed.covariates$lake_ID_andClass,3,3), pch=20, cex=3,
+       xlab = "color:chlorophyll-a", ylab = paste(colnames(clad.indexed.covariates)[i]))
+  text(x = clad.indexed.covariates$color_chlA + 0.008, y = clad.indexed.covariates[,i], labels = clad.indexed.covariates$lake)
+}
+
+#test for correlations among the covariates that seem to diverge between the ponds and the other lakes when plotted against PC1
+cor(clad.indexed.covariates[,c(4,6,11,14,24,29,34)])
+scatterplotMatrix(clad.indexed.covariates[,c(4,6,11,14,24,29,34)], reg.line=F, smooth=F, spread=F, diagonal='density', id.n=0, span=0.5)
+#see log for 9/22 to see how I resolved this
+
+#### plotting covariates with PC1 JUST FOR THE NON-PUDDLES
+for(i in 3:35)
+{
+  plot(sample.scores[,1][-c(1,2,3,7)], clad.indexed.covariates[,i][-c(1,2,3,7)], xlim=c(-4,4),
+       main=paste(colnames(clad.indexed.covariates)[i]), col=substr(clad.indexed.covariates$lake_ID_andClass,3,3)[-c(1,2,3,7)], pch=20, cex=3,
+       xlab = "PC1", ylab = paste(colnames(clad.indexed.covariates)[i]))
+  text(x = sample.scores[,1][-c(1,2,3,7)]+0.5, y = clad.indexed.covariates[,i][-c(1,2,3,7)], labels = clad.indexed.covariates$lake[-c(1,2,3,7)])
+}
+
+scatterplotMatrix(clad.indexed.covariates[-c(1,2,3,7),c(6,11,15,16,29,34)], reg.line=F, smooth=F, spread=F, diagonal='density', id.n=0, span=0.5)
+
+####21 - Producer PCAs ####
 
 #create FA groupings
 short_SAFA<-data[data$short_SAFA==1,c(1:5, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
@@ -1541,7 +1952,7 @@ legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
 legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
        fill=c(1, 2, 3, 4, 5))
 
-########20 - Hierarchical cluster analysis functions####
+########22 - Hierarchical cluster analysis functions####
 library(cluster)
 library(vegan)
 library(pvclust)
@@ -1618,7 +2029,7 @@ hclus.scree <-
                     '(',x$dist.method,', ',x$method,')',sep=''),...)
     par(old.par)
   }
-####21 - HCA1 (all species)####
+####23 - HCA1 (all species)####
 short_SAFA<-data[data$short_SAFA==1,c(1:5, cal.cols, clad.cols, caddis.cols, chaob.cols, fish.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
 short_SAFA<-colSums(short_SAFA[,6:42], na.rm=T)
 iSAFA_etc<-data[data$iSAFA_etc==1,c(1:5, cal.cols, clad.cols, caddis.cols, chaob.cols, fish.cols, POM.cols, peri.cols, fil.cols, moss.cols, soil.cols, plant.cols)]
@@ -1745,4 +2156,4 @@ plot(hc1.bootstrap4, hang=-1)
 pvrect(hc1.bootstrap4, alpha=0.99)
 plot(hc1.clust4, main="single linkage dendrogram", xlab="species", ylab="euclidean distance", hang=-1)
 rect.hclust(hc1.clust, k=2)
-####22 - cal.HCA####
+####24 - cal.HCA####
