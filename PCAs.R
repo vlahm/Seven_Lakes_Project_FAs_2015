@@ -1312,8 +1312,8 @@ structure<-pca.structure(cal.pca,tcal.asin.grouped,dim=7,cutoff=0.2)
 sample.scores<-cal.pca$x[,1:7]
 
 #create matrix of other covariates organized so that they can be used as cex values in the plot
-cal.indexed.covariates<-matrix(NA, nrow=length(row.names(tcal.asin.grouped)), ncol=35)
-for (i in 1:35)
+cal.indexed.covariates<-matrix(NA, nrow=length(row.names(tcal.asin.grouped)), ncol=41)
+for (i in 1:length(cal.indexed.covariates[1,]))
 {
   for (j in 1:length(row.names(tcal.asin.grouped)))
   {
@@ -1327,9 +1327,9 @@ cal.indexed.covariates[,1]<-c("C", "O", "Z", "Mirror", "Y025", "Y015", "L", "Cle
 
 #plot PCA
 #first and second principal components (showing watershed area:lake area ratio)
-cal.fig<-ordiplot(cal.pca, choices=c(1,2), type="none", xlim=c(-4,3), ylim=c(-3,4), main="Calanoid PCA, sized by watershed:lake area ratio")
+cal.fig<-ordiplot(cal.pca, choices=c(1,2), type="none", xlim=c(-4,3), ylim=c(-3,4), main="Calanoid PCA; size = color:chlA")
 points(cal.fig, "sites", pch=as.numeric(substr(row.names(tcal.asin.grouped),6,7)), 
-       col=as.numeric(substr(row.names(tcal.asin.grouped),5,5)), cex=rescale(cal.indexed.covariates$shed_lake_areaRatio, c(2,15))) #rescales all variables to range: 2-15
+       col=as.numeric(substr(row.names(tcal.asin.grouped),5,5)), cex=rescale(cal.indexed.covariates$color_chlA, c(2,15))) #rescales all variables to range: 2-15
 # points(cal.fig, "sites", pch=3, bg="transparent", col="gray", cex=rescale(cal.indexed.covariates$lake_area, c(2,15)))
 # points(cal.fig, "sites", pch=21, bg="transparent", col="gray", cex=rescale(cal.indexed.covariates$shed_lake_areaRatio, c(2,15)))
 arrows(0,0,cal.pca$rotation[,1]*5, cal.pca$rotation[,2]*5, col="purple")
@@ -1337,14 +1337,14 @@ text(cal.pca$rotation[,1]*5.8, cal.pca$rotation[,2]*5.8, row.names(cal.pca$rotat
 # legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
 #                            "fish", "POM", "periphyton", "filamentous", "moss", 
 #                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4, 11, 7, 9, 14))
-legend("bottomleft", legend=c("small forested", "med forested", "large forested", "unforested"),
+legend("bottomleft", legend=c("sm low forested", "med mid forested", "lg low forested", "high unforested"),
        fill=c(1, 3, 4, 2))
 # legend("bottom", legend=c("gray cross = lake area", "gray circle = watershed:area"))
 
 
 #to loop through with all covariates represented as point size:
 #NOTE caddisd15n is misrepresented.  Also note issue with CH4
-for (i in 3:35)
+for (i in 3:length(cal.indexed.covariates[1,]))
 {
   cal.fig<-ordiplot(cal.pca, choices=c(1,2), type="none", xlim=c(-6,3), ylim=c(-5,4), main=paste("Cal PC1 and 2, size = ", colnames(cal.indexed.covariates)[i]))
   points(cal.fig, "sites", pch=as.numeric(substr(row.names(tcal.asin.grouped),6,7)), 
@@ -1364,10 +1364,10 @@ for (i in 3:35)
 
 #notable covariates: CO2, CH4, 
 
-#plot caddis d13c vs caddis d15n (should show inverse relationship).  (then color by lake type) and size by other covariates
+#plot cal d13c vs cal d15n (should show inverse relationship).  (then color by lake type) and size by other covariates
 #until you find one that follows the trendline in either direction.
 
-for(i in 3:35)
+for(i in 3:length(cal.indexed.covariates[1,]))
 {
   plot(cal.indexed.covariates$calanoidd13c, cal.indexed.covariates$calanoidd15n, cex=rescale(cal.indexed.covariates[,i], c(2,15)),
        main=paste(colnames(cal.indexed.covariates)[i]), col=substr(cal.indexed.covariates$lake_ID_andClass,3,3), pch=20, ylim = c(1,5),
@@ -1398,19 +1398,19 @@ for(i in 1:10)
 {
   if (substr(colnames(dist.data[cal.cols[i]]),5,5)==1)
   {
-    plot(dist.data[,cal.cols[i]], type="o", ylab=colnames(dist.data[cal.cols[i]]), xlab="", col="black", xaxt="n")
+    plot(dist.data[,cal.cols[i]], type="o", ylab=colnames(dist.data[cal.cols[i]]), xlab="", col="black", xaxt="n", ylim=c(0,25))
   }  
   else if (substr(colnames(dist.data[cal.cols[i]]),5,5)==2)
   {
-    plot(dist.data[,cal.cols[i]], type="o", ylab=colnames(dist.data[cal.cols[i]]), xlab="", col="red", xaxt="n")
+    plot(dist.data[,cal.cols[i]], type="o", ylab=colnames(dist.data[cal.cols[i]]), xlab="", col="red", xaxt="n", ylim=c(0,25))
   } 
   else if (substr(colnames(dist.data[cal.cols[i]]),5,5)==3)
   {
-    plot(dist.data[,cal.cols[i]], type="o", ylab=colnames(dist.data[cal.cols[i]]), xlab="", col="green", xaxt="n")
+    plot(dist.data[,cal.cols[i]], type="o", ylab=colnames(dist.data[cal.cols[i]]), xlab="", col="green", xaxt="n", ylim=c(0,25))
   }
   else if (substr(colnames(dist.data[cal.cols[i]]),5,5)==4)
   {
-    plot(dist.data[,cal.cols[i]], type="o", ylab=colnames(dist.data[cal.cols[i]]), xlab="", col="blue", xaxt="n")
+    plot(dist.data[,cal.cols[i]], type="o", ylab=colnames(dist.data[cal.cols[i]]), xlab="", col="blue", xaxt="n", ylim=c(0,25))
     axis(side=1, at=c(4,6,8,10,12,16,22,26,28,33,34,35,38,41,42,43,50,52,56,58,60), 
          labels=dist.data$FA_name[c(4,6,8,10,12,16,22,26,28,33,34,35,38,41,42,43,50,52,56,58,60)], las=2)
   }
@@ -1419,7 +1419,7 @@ par(mar=c(4,4,4,4))
 par(mfrow=c(1,1))
 
 #### plotting covariates with PC1
-for(i in 3:35)
+for(i in 3:length(cal.indexed.covariates[1,]))
 {
   plot(sample.scores[,1], cal.indexed.covariates[,i], xlim=c(-4,4),
        main=paste(colnames(cal.indexed.covariates)[i]), col=substr(cal.indexed.covariates$lake_ID_andClass,3,3), pch=20, cex=3,
@@ -1429,7 +1429,7 @@ for(i in 3:35)
 #          fill=c(1, 2, 3, 4))
 }
 
-for(i in 3:35)
+for(i in 3:length(cal.indexed.covariates[1,]))
 {
   plot(cal.indexed.covariates$color_chlA, cal.indexed.covariates[,i],
        main=paste("color:chl-a X ", colnames(cal.indexed.covariates)[i]), col=substr(cal.indexed.covariates$lake_ID_andClass,3,3), pch=20, cex=3,
@@ -1443,7 +1443,7 @@ scatterplotMatrix(cal.indexed.covariates[,c(4,6,11,14,24,29,34)], reg.line=F, sm
 #see log for 9/22 to see how I resolved this
 
 #### plotting covariates with PC1 JUST FOR THE NON-PUDDLES
-for(i in 3:35)
+for(i in 3:length(cal.indexed.covariates[1,]))
 {
   plot(sample.scores[,1][-c(1,2,3,7)], cal.indexed.covariates[,i][-c(1,2,3,7)], xlim=c(-4,4),
        main=paste(colnames(cal.indexed.covariates)[i]), col=substr(cal.indexed.covariates$lake_ID_andClass,3,3)[-c(1,2,3,7)], pch=20, cex=3,
@@ -1515,8 +1515,8 @@ structure<-pca.structure(caddis.pca,tcaddis.asin.grouped,dim=7,cutoff=0.2)
 sample.scores<-caddis.pca$x[,1:7]
 
 #create matrix of other covariates organized so that they can be used as cex values in the plot
-caddis.indexed.covariates<-matrix(NA, nrow=length(row.names(tcaddis.asin.grouped)), ncol=35)
-for (i in 1:35)
+caddis.indexed.covariates<-matrix(NA, nrow=length(row.names(tcaddis.asin.grouped)), ncol=41)
+for (i in 1:length(caddis.indexed.covariates[1,]))
 {
   for (j in 1:length(row.names(tcaddis.asin.grouped)))
   {
@@ -1524,15 +1524,19 @@ for (i in 1:35)
     caddis.indexed.covariates[j,i]<-alldata[1:11,i][substr(alldata$lake_ID_andClass[1:11],1,2)==(as.numeric(substr(row.names(tcaddis.asin.grouped),8,9))[j])]
   }
 }
-caddis.indexed.covariates<-as.data.frame(caddis.indexed.covariates)
+caddis.indexed.covariates<-as.data.frame(caddis.indexed.covariates[-c(1,5),])
 colnames(caddis.indexed.covariates)<-colnames(alldata)
-caddis.indexed.covariates[,1]<-c("C", "O", "Z", "Mirror", "Y025", "Y015", "L", "Clear", "Morgenroth", "Milk")
+caddis.indexed.covariates[,1]<-c("C", "Milk", "Mirror", "Morgenroth", "No_Name", "Y015", "Y025", "Z", "Clear")
 
 #plot PC 1 and 2
+#temp <- tcaddis.asin.grouped
+caddis.ID<-c('C','C','k','m','M','M','N','y','Y','Z','c')
+#IDcorrespond<-c('C','C','Milk','mirror','Morgenroth','Morgenroth','No_Name','Y015','Y025','Z','Clear')
 #first and second principal components (showing watershed area:lake area ratio)
 caddis.fig<-ordiplot(caddis.pca, choices=c(1,2), type="none", xlim=c(-4,3), ylim=c(-4,4), main="Caddis PC 1 and 2, sized by watershed:lake area ratio")
 points(caddis.fig, "sites", pch=20, 
-       col=as.numeric(substr(row.names(tcaddis.asin.grouped),5,5)), cex=rescale(caddis.indexed.covariates$shed_lake_areaRatio, c(2,15))) #rescales all variables to range: 2-15
+       col=as.numeric(substr(row.names(tcaddis.asin.grouped),5,5)), cex=rescale(caddis.indexed.covariates$shed_lake_areaRatio[c(1,1,2,3,4,4,5,6,7,8,9)], c(2,15))) #rescales all variables to range: 2-15
+points(caddis.fig, "sites", pch=caddis.ID, col='yellow')
 # points(caddis.fig, "sites", pch=3, bg="transparent", col="gray", cex=rescale(caddis.indexed.covariates$lake_area, c(2,15)))
 # points(caddis.fig, "sites", pch=21, bg="transparent", col="gray", cex=rescale(caddis.indexed.covariates$shed_lake_areaRatio, c(2,15)))
 arrows(0,0,caddis.pca$rotation[,1]*5, caddis.pca$rotation[,2]*5, col="purple")
@@ -1540,7 +1544,7 @@ text(caddis.pca$rotation[,1]*5.8, caddis.pca$rotation[,2]*5.8, row.names(caddis.
 # legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
 #                            "fish", "POM", "periphyton", "filamentous", "moss", 
 #                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4, 11, 7, 9, 14))
-legend("bottomleft", legend=c("small forested", "med forested", "large forested", "unforested"),
+legend("topleft", legend=c("sm low forested", "med mid forested", "lg low forested", "high unforested"),
        fill=c(1, 3, 4, 2))
 # legend("bottom", legend=c("gray cross = lake area", "gray circle = watershed:area"))
 
@@ -1548,7 +1552,8 @@ legend("bottomleft", legend=c("small forested", "med forested", "large forested"
 #first and second principal components (showing watershed area:lake area ratio)
 caddis.fig<-ordiplot(caddis.pca, choices=c(1,3), type="none", xlim=c(-4,3), ylim=c(-4,5), main="Caddis PC 1 and 3, sized by watershed:lake area ratio")
 points(caddis.fig, "sites", pch=20, 
-       col=as.numeric(substr(row.names(tcaddis.asin.grouped),5,5)), cex=rescale(caddis.indexed.covariates$shed_lake_areaRatio, c(2,15))) #rescales all variables to range: 2-15
+       col=as.numeric(substr(row.names(tcaddis.asin.grouped),5,5)), cex=rescale(caddis.indexed.covariates$shed_lake_areaRatio[c(1,1,2,3,4,4,5,6,7,8,9)], c(2,15))) #rescales all variables to range: 2-15
+points(caddis.fig, "sites", pch=ID, col='yellow')
 arrows(0,0,caddis.pca$rotation[,1]*5, caddis.pca$rotation[,3]*5, col="purple")
 text(caddis.pca$rotation[,1]*5.8, caddis.pca$rotation[,3]*5.8, row.names(caddis.pca$rotation), col="purple")
 legend("bottomleft", legend=c("small forested", "med forested", "large forested", "unforested"),
@@ -1556,30 +1561,30 @@ legend("bottomleft", legend=c("small forested", "med forested", "large forested"
 
 #to loop through with all covariates represented as point size:
 #NOTE caddisd15n is misrepresented.  Also note issue with CH4
-for (i in 3:35)
-{
-  caddis.fig<-ordiplot(caddis.pca, choices=c(1,2), type="none", xlim=c(-6,3), ylim=c(-5,4), main=paste("caddis PC1 and 2, size = ", colnames(caddis.indexed.covariates)[i]))
-  points(caddis.fig, "sites", pch=as.numeric(substr(row.names(tcaddis.asin.grouped),6,7)), 
-         col=as.numeric(substr(row.names(tcaddis.asin.grouped),5,5)), cex=rescale(caddis.indexed.covariates[,i], c(2,15))) #rescales all variables to range: 2-15
-  points(caddis.fig, "sites", pch=3, bg="transparent", col="gray", cex=rescale(caddis.indexed.covariates$lake_area, c(2,15)))
-  points(caddis.fig, "sites", pch=21, bg="transparent", col="gray", cex=rescale(caddis.indexed.covariates$shed_lake_areaRatio, c(2,15)))
-  arrows(0,0,caddis.pca$rotation[,1]*5, caddis.pca$rotation[,2]*5, col="purple")
-  text(caddis.pca$rotation[,1]*5.8, caddis.pca$rotation[,2]*5.8, row.names(caddis.pca$rotation), col="purple")
-  legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
-                             "fish", "POM", "periphyton", "filamentous", "moss", 
-                             "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
-                                                              11, 7, 9, 14))
-  legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
-         fill=c(1, 2, 3, 4, 5))
-  legend("bottom", legend=c("gray cross = lake area", "gray circle = watershedA:lakeA"))
-}
+# for (i in 3:length(caddis.indexed.covariates[1,]))
+# {
+#   caddis.fig<-ordiplot(caddis.pca, choices=c(1,2), type="none", xlim=c(-6,3), ylim=c(-5,4), main=paste("caddis PC1 and 2, size = ", colnames(caddis.indexed.covariates)[i]))
+#   points(caddis.fig, "sites", pch=as.numeric(substr(row.names(tcaddis.asin.grouped),6,7)), 
+#          col=as.numeric(substr(row.names(tcaddis.asin.grouped),5,5)), cex=rescale(caddis.indexed.covariates[,i], c(2,15))) #rescales all variables to range: 2-15
+#   points(caddis.fig, "sites", pch=3, bg="transparent", col="gray", cex=rescale(caddis.indexed.covariates$lake_area, c(2,15)))
+#   points(caddis.fig, "sites", pch=21, bg="transparent", col="gray", cex=rescale(caddis.indexed.covariates$shed_lake_areaRatio, c(2,15)))
+#   arrows(0,0,caddis.pca$rotation[,1]*5, caddis.pca$rotation[,2]*5, col="purple")
+#   text(caddis.pca$rotation[,1]*5.8, caddis.pca$rotation[,2]*5.8, row.names(caddis.pca$rotation), col="purple")
+#   legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
+#                              "fish", "POM", "periphyton", "filamentous", "moss", 
+#                              "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
+#                                                               11, 7, 9, 14))
+#   legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
+#          fill=c(1, 2, 3, 4, 5))
+#   legend("bottom", legend=c("gray cross = lake area", "gray circle = watershedA:lakeA"))
+# }
 
 #notable covariates: CO2, CH4, 
 
 #plot caddis d13c vs caddis d15n (should show inverse relationship).  (then color by lake type) and size by other covariates
 #until you find one that follows the trendline in either direction.
 
-for(i in 3:35)
+for(i in 3:length(caddis.indexed.covariates[1,]))
 {
   plot(caddis.indexed.covariates$caddisd13c, caddis.indexed.covariates$caddisd15n, cex=rescale(caddis.indexed.covariates[,i], c(2,15)),
        main=paste(colnames(caddis.indexed.covariates)[i]), col=substr(caddis.indexed.covariates$lake_ID_andClass,3,3), pch=20, ylim = c(1,5),
@@ -1591,18 +1596,18 @@ for(i in 3:35)
 
 
 #plotting 3rd and 4th principal components
-caddis.fig<-ordiplot(caddis.pca, choices=c(3,4), type="none", xlim=c(-4,4), ylim=c(-4,4), main="caddis PC3 and 4")
-points(caddis.fig, "sites", pch=as.numeric(substr(row.names(tcaddis.asin.grouped),6,7)), col=as.numeric(substr(row.names(tcaddis.asin.grouped),5,5)))
-arrows(0,0,caddis.pca$rotation[,3]*5, caddis.pca$rotation[,4]*5, col="black")
-text(caddis.pca$rotation[,3]*5.8, caddis.pca$rotation[,4]*5.8, row.names(caddis.pca$rotation))
-legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
-                           "fish", "POM", "periphyton", "filamentous", "moss", 
-                           "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
-                                                            11, 7, 9, 14))
-legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
-       fill=c(1, 2, 3, 4, 5))
-
-#are there obvious differences among the frequency distributions?
+# caddis.fig<-ordiplot(caddis.pca, choices=c(3,4), type="none", xlim=c(-4,4), ylim=c(-4,4), main="caddis PC3 and 4")
+# points(caddis.fig, "sites", pch=as.numeric(substr(row.names(tcaddis.asin.grouped),6,7)), col=as.numeric(substr(row.names(tcaddis.asin.grouped),5,5)))
+# arrows(0,0,caddis.pca$rotation[,3]*5, caddis.pca$rotation[,4]*5, col="black")
+# text(caddis.pca$rotation[,3]*5.8, caddis.pca$rotation[,4]*5.8, row.names(caddis.pca$rotation))
+# legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
+#                            "fish", "POM", "periphyton", "filamentous", "moss", 
+#                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
+#                                                             11, 7, 9, 14))
+# legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
+#        fill=c(1, 2, 3, 4, 5))
+# 
+# #are there obvious differences among the frequency distributions?
 
 par(mar=c(0,5,0,0))
 par(mfrow=c(10,1))
@@ -1610,26 +1615,28 @@ for(i in 1:10)
 {
   if (substr(colnames(dist.data[caddis.cols[i]]),5,5)==1)
   {
-    plot(dist.data[,caddis.cols[i]], type="l", ylab=colnames(dist.data[caddis.cols[i]]), xlab="", col="blue")
+    plot(dist.data[,caddis.cols[i]], type="l", ylab=colnames(dist.data[caddis.cols[i]]), xlab="", col="black", xaxt="n", ylim=c(0,25))
   }  
   else if (substr(colnames(dist.data[caddis.cols[i]]),5,5)==2)
   {
-    plot(dist.data[,caddis.cols[i]], type="l", ylab=colnames(dist.data[caddis.cols[i]]), xlab="", col="red")
+    plot(dist.data[,caddis.cols[i]], type="l", ylab=colnames(dist.data[caddis.cols[i]]), xlab="", col="red", xaxt="n", ylim=c(0,25))
   } 
   else if (substr(colnames(dist.data[caddis.cols[i]]),5,5)==3)
   {
-    plot(dist.data[,caddis.cols[i]], type="l", ylab=colnames(dist.data[caddis.cols[i]]), xlab="", col="black")
+    plot(dist.data[,caddis.cols[i]], type="l", ylab=colnames(dist.data[caddis.cols[i]]), xlab="", col="green", xaxt="n", ylim=c(0,25))
+    axis(side=1, at=c(4,6,10,12,16,20,22,26,28,30,33,34,35,38,41,44,46,50,52,53,59), 
+         labels=dist.data$FA_name[c(4,6,10,12,16,20,22,26,28,30,33,34,35,38,41,44,46,50,52,53,59)], las=2)
   }
   else if (substr(colnames(dist.data[caddis.cols[i]]),5,5)==4)
   {
-    plot(dist.data[,caddis.cols[i]], type="l", ylab=colnames(dist.data[caddis.cols[i]]), xlab="", col="green")
+    plot(dist.data[,caddis.cols[i]], type="l", ylab=colnames(dist.data[caddis.cols[i]]), xlab="", col="blue", xaxt="n", ylim=c(0,25))
   }
 }
 par(mar=c(4,4,4,4))
 par(mfrow=c(1,1))
 
 #### plotting covariates with PC1
-for(i in 3:35)
+for(i in 3:length(caddis.indexed.covariates[1,]))
 {
   plot(sample.scores[,1], caddis.indexed.covariates[,i], xlim=c(-4,4),
        main=paste(colnames(caddis.indexed.covariates)[i]), col=substr(caddis.indexed.covariates$lake_ID_andClass,3,3), pch=20, cex=3,
@@ -1639,7 +1646,7 @@ for(i in 3:35)
   #          fill=c(1, 2, 3, 4))
 }
 
-for(i in 3:35)
+for(i in 3:length(caddis.indexed.covariates[1,]))
 {
   plot(caddis.indexed.covariates$color_chlA, caddis.indexed.covariates[,i],
        main=paste("color:chl-a X ", colnames(caddis.indexed.covariates)[i]), col=substr(caddis.indexed.covariates$lake_ID_andClass,3,3), pch=20, cex=3,
@@ -1653,7 +1660,7 @@ scatterplotMatrix(caddis.indexed.covariates[,c(4,6,11,14,24,29,34)], reg.line=F,
 #see log for 9/22 to see how I resolved this
 
 #### plotting covariates with PC1 JUST FOR THE NON-PUDDLES
-for(i in 3:35)
+for(i in 3:length(caddis.indexed.covariates[1,]))
 {
   plot(sample.scores[,1][-c(1,2,3,7)], caddis.indexed.covariates[,i][-c(1,2,3,7)], xlim=c(-4,4),
        main=paste(colnames(caddis.indexed.covariates)[i]), col=substr(caddis.indexed.covariates$lake_ID_andClass,3,3)[-c(1,2,3,7)], pch=20, cex=3,
@@ -1710,39 +1717,41 @@ for (i in 1:length(clad.grouped[1,]))
 }
 
 #format data for PCA
-tcal.asin.grouped<-t(as.matrix(clad.asin.grouped))
+tclad.asin.grouped<-t(as.matrix(clad.asin.grouped))
 
 #perform PCA and associated tests
-clad.pca<-prcomp(tcal.asin.grouped,scale=T, scores=T)
+clad.pca<-prcomp(tclad.asin.grouped,scale=T, scores=T)
 #determine eigenvalues
 eigenvalues<-pca.eigenval(clad.pca)
 #see which eigenvalues are significant
 screeplot(clad.pca, bstick=T)
 #see loadings.  square these to get percentage of variance in each original variable
 #accounted for by each principal component
-structure<-pca.structure(clad.pca,tcal.asin.grouped,dim=7,cutoff=0.2)
+structure<-pca.structure(clad.pca,tclad.asin.grouped,dim=6,cutoff=0.2)
 #sample scores
-sample.scores<-clad.pca$x[,1:7]
+sample.scores<-clad.pca$x[,1:6]
 
 #create matrix of other covariates organized so that they can be used as cex values in the plot
-clad.indexed.covariates<-matrix(NA, nrow=length(row.names(tcal.asin.grouped)), ncol=35)
-for (i in 1:35)
+clad.indexed.covariates<-matrix(NA, nrow=length(row.names(tclad.asin.grouped)), ncol=41)
+for (i in 1:length(clad.indexed.covariates[1,]))
 {
-  for (j in 1:length(row.names(tcal.asin.grouped)))
+  for (j in 1:length(row.names(tclad.asin.grouped)))
   {
     #read lake_ID(but not class) off alldata and match it to lake ID in the indexed covariates
-    clad.indexed.covariates[j,i]<-alldata[1:11,i][substr(alldata$lake_ID_andClass[1:11],1,2)==(as.numeric(substr(row.names(tcal.asin.grouped),8,9))[j])]
+    clad.indexed.covariates[j,i]<-alldata[1:11,i][substr(alldata$lake_ID_andClass[1:11],1,2)==(as.numeric(substr(row.names(tclad.asin.grouped),8,9))[j])]
   }
 }
 clad.indexed.covariates<-as.data.frame(clad.indexed.covariates)
 colnames(clad.indexed.covariates)<-colnames(alldata)
-clad.indexed.covariates[,1]<-c("C", "O", "Z", "Mirror", "Y025", "Y015", "L", "Clear", "Morgenroth", "Milk")
+clad.indexed.covariates[,1]<-c("Clear", "Morgenroth", "O", "L", "C", "Z")
 
 #plot PCA
 #first and second principal components (showing watershed area:lake area ratio)
-clad.fig<-ordiplot(clad.pca, choices=c(1,2), type="none", xlim=c(-4,4), ylim=c(-3,3), main="Calanoid PCA, sized by watershed:lake area ratio")
+clad.ID <- c('c','M','O','L','C','Z')
+clad.fig<-ordiplot(clad.pca, choices=c(1,2), type="none", xlim=c(-4,4), ylim=c(-3,3), main="Cladocera PCA, sized by watershed:lake area ratio")
 points(clad.fig, "sites", pch=20, 
-       col=as.numeric(substr(row.names(tcal.asin.grouped),5,5)), cex=rescale(clad.indexed.covariates$shed_lake_areaRatio, c(2,15))) #rescales all variables to range: 2-15
+       col=as.numeric(substr(row.names(tclad.asin.grouped),5,5)), cex=rescale(clad.indexed.covariates$shed_lake_areaRatio, c(2,15))) #rescales all variables to range: 2-15
+points(clad.fig, "sites", pch=clad.ID, col='yellow')
 # points(clad.fig, "sites", pch=3, bg="transparent", col="gray", cex=rescale(clad.indexed.covariates$lake_area, c(2,15)))
 # points(clad.fig, "sites", pch=21, bg="transparent", col="gray", cex=rescale(clad.indexed.covariates$shed_lake_areaRatio, c(2,15)))
 arrows(0,0,clad.pca$rotation[,1]*5, clad.pca$rotation[,2]*5, col="purple")
@@ -1757,30 +1766,30 @@ legend("bottomleft", legend=c("small forested", "med forested", "large forested"
 
 #to loop through with all covariates represented as point size:
 #NOTE caddisd15n is misrepresented.  Also note issue with CH4
-for (i in 3:35)
-{
-  clad.fig<-ordiplot(clad.pca, choices=c(1,2), type="none", xlim=c(-6,3), ylim=c(-5,4), main=paste("clad PC1 and 2, size = ", colnames(clad.indexed.covariates)[i]))
-  points(clad.fig, "sites", pch=as.numeric(substr(row.names(tcal.asin.grouped),6,7)), 
-         col=as.numeric(substr(row.names(tcal.asin.grouped),5,5)), cex=rescale(clad.indexed.covariates[,i], c(2,15))) #rescales all variables to range: 2-15
-  points(clad.fig, "sites", pch=3, bg="transparent", col="gray", cex=rescale(clad.indexed.covariates$lake_area, c(2,15)))
-  points(clad.fig, "sites", pch=21, bg="transparent", col="gray", cex=rescale(clad.indexed.covariates$shed_lake_areaRatio, c(2,15)))
-  arrows(0,0,clad.pca$rotation[,1]*5, clad.pca$rotation[,2]*5, col="purple")
-  text(clad.pca$rotation[,1]*5.8, clad.pca$rotation[,2]*5.8, row.names(clad.pca$rotation), col="purple")
-  legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
-                             "fish", "POM", "periphyton", "filamentous", "moss", 
-                             "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
-                                                              11, 7, 9, 14))
-  legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
-         fill=c(1, 2, 3, 4, 5))
-  legend("bottom", legend=c("gray cross = lake area", "gray circle = watershedA:lakeA"))
-}
+# for (i in 3:length(clad.indexed.covariates[1,]))
+# {
+#   clad.fig<-ordiplot(clad.pca, choices=c(1,2), type="none", xlim=c(-6,3), ylim=c(-5,4), main=paste("clad PC1 and 2, size = ", colnames(clad.indexed.covariates)[i]))
+#   points(clad.fig, "sites", pch=as.numeric(substr(row.names(tcal.asin.grouped),6,7)), 
+#          col=as.numeric(substr(row.names(tcal.asin.grouped),5,5)), cex=rescale(clad.indexed.covariates[,i], c(2,15))) #rescales all variables to range: 2-15
+#   points(clad.fig, "sites", pch=3, bg="transparent", col="gray", cex=rescale(clad.indexed.covariates$lake_area, c(2,15)))
+#   points(clad.fig, "sites", pch=21, bg="transparent", col="gray", cex=rescale(clad.indexed.covariates$shed_lake_areaRatio, c(2,15)))
+#   arrows(0,0,clad.pca$rotation[,1]*5, clad.pca$rotation[,2]*5, col="purple")
+#   text(clad.pca$rotation[,1]*5.8, clad.pca$rotation[,2]*5.8, row.names(clad.pca$rotation), col="purple")
+#   legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
+#                              "fish", "POM", "periphyton", "filamentous", "moss", 
+#                              "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
+#                                                               11, 7, 9, 14))
+#   legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
+#          fill=c(1, 2, 3, 4, 5))
+#   legend("bottom", legend=c("gray cross = lake area", "gray circle = watershedA:lakeA"))
+# }
 
 #notable covariates: CO2, CH4, 
 
 #plot caddis d13c vs caddis d15n (should show inverse relationship).  (then color by lake type) and size by other covariates
 #until you find one that follows the trendline in either direction.
 
-for(i in 3:35)
+for(i in 3:length(clad.indexed.covariates[1,]))
 {
   plot(clad.indexed.covariates$calanoidd13c, clad.indexed.covariates$calanoidd15n, cex=rescale(clad.indexed.covariates[,i], c(2,15)),
        main=paste(colnames(clad.indexed.covariates)[i]), col=substr(clad.indexed.covariates$lake_ID_andClass,3,3), pch=20, ylim = c(1,5),
@@ -1792,16 +1801,16 @@ for(i in 3:35)
 
 
 #plotting 3rd and 4th principal components
-clad.fig<-ordiplot(clad.pca, choices=c(3,4), type="none", xlim=c(-4,4), ylim=c(-4,4), main="clad PC3 and 4")
-points(clad.fig, "sites", pch=as.numeric(substr(row.names(tcal.asin.grouped),6,7)), col=as.numeric(substr(row.names(tcal.asin.grouped),5,5)))
-arrows(0,0,clad.pca$rotation[,3]*5, clad.pca$rotation[,4]*5, col="black")
-text(clad.pca$rotation[,3]*5.8, clad.pca$rotation[,4]*5.8, row.names(clad.pca$rotation))
-legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
-                           "fish", "POM", "periphyton", "filamentous", "moss", 
-                           "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
-                                                            11, 7, 9, 14))
-legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
-       fill=c(1, 2, 3, 4, 5))
+# clad.fig<-ordiplot(clad.pca, choices=c(3,4), type="none", xlim=c(-4,4), ylim=c(-4,4), main="clad PC3 and 4")
+# points(clad.fig, "sites", pch=as.numeric(substr(row.names(tcal.asin.grouped),6,7)), col=as.numeric(substr(row.names(tcal.asin.grouped),5,5)))
+# arrows(0,0,clad.pca$rotation[,3]*5, clad.pca$rotation[,4]*5, col="black")
+# text(clad.pca$rotation[,3]*5.8, clad.pca$rotation[,4]*5.8, row.names(clad.pca$rotation))
+# legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
+#                            "fish", "POM", "periphyton", "filamentous", "moss", 
+#                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
+#                                                             11, 7, 9, 14))
+# legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
+#        fill=c(1, 2, 3, 4, 5))
 
 #are there obvious differences among the frequency distributions?
 
@@ -1811,26 +1820,29 @@ for(i in 1:10)
 {
   if (substr(colnames(dist.data[clad.cols[i]]),5,5)==1)
   {
-    plot(dist.data[,clad.cols[i]], type="l", ylab=colnames(dist.data[clad.cols[i]]), xlab="", col="blue")
+    plot(dist.data[,clad.cols[i]], type="l", ylab=colnames(dist.data[clad.cols[i]]), xlab="", col="black", xaxt="n", ylim=c(0,25))
   }  
   else if (substr(colnames(dist.data[clad.cols[i]]),5,5)==2)
   {
-    plot(dist.data[,clad.cols[i]], type="l", ylab=colnames(dist.data[clad.cols[i]]), xlab="", col="red")
+    plot(dist.data[,clad.cols[i]], type="l", ylab=colnames(dist.data[clad.cols[i]]), xlab="", col="red", xaxt="n", ylim=c(0,25))
   } 
   else if (substr(colnames(dist.data[clad.cols[i]]),5,5)==3)
   {
-    plot(dist.data[,clad.cols[i]], type="l", ylab=colnames(dist.data[clad.cols[i]]), xlab="", col="black")
+    plot(dist.data[,clad.cols[i]], type="l", ylab=colnames(dist.data[clad.cols[i]]), xlab="", col="green", xaxt="n", ylim=c(0,25))
+    axis(side=1, at=c(4,8,9,10,12,14,16,17,18,22,26,28,29,33,34,35,38,41,44,50,52,58), 
+         labels=dist.data$FA_name[c(4,8,9,10,12,14,16,17,18,22,26,28,29,33,34,35,38,41,44,50,52,58)], las=2)
+    
   }
   else if (substr(colnames(dist.data[clad.cols[i]]),5,5)==4)
   {
-    plot(dist.data[,clad.cols[i]], type="l", ylab=colnames(dist.data[clad.cols[i]]), xlab="", col="green")
+    plot(dist.data[,clad.cols[i]], type="l", ylab=colnames(dist.data[clad.cols[i]]), xlab="", col="blue", xaxt="n", ylim=c(0,25))
   }
 }
 par(mar=c(4,4,4,4))
 par(mfrow=c(1,1))
 
 #### plotting covariates with PC1
-for(i in 3:35)
+for(i in 3:length(clad.indexed.covariates[1,]))
 {
   plot(sample.scores[,1], clad.indexed.covariates[,i], xlim=c(-4,4),
        main=paste(colnames(clad.indexed.covariates)[i]), col=substr(clad.indexed.covariates$lake_ID_andClass,3,3), pch=20, cex=3,
@@ -1840,7 +1852,7 @@ for(i in 3:35)
   #          fill=c(1, 2, 3, 4))
 }
 
-for(i in 3:35)
+for(i in 3:length(clad.indexed.covariates[1,]))
 {
   plot(clad.indexed.covariates$color_chlA, clad.indexed.covariates[,i],
        main=paste("color:chl-a X ", colnames(clad.indexed.covariates)[i]), col=substr(clad.indexed.covariates$lake_ID_andClass,3,3), pch=20, cex=3,
@@ -1854,7 +1866,7 @@ scatterplotMatrix(clad.indexed.covariates[,c(4,6,11,14,24,29,34)], reg.line=F, s
 #see log for 9/22 to see how I resolved this
 
 #### plotting covariates with PC1 JUST FOR THE NON-PUDDLES
-for(i in 3:35)
+for(i in 3:length(clad.indexed.covariates[1,]))
 {
   plot(sample.scores[,1][-c(1,2,3,7)], clad.indexed.covariates[,i][-c(1,2,3,7)], xlim=c(-4,4),
        main=paste(colnames(clad.indexed.covariates)[i]), col=substr(clad.indexed.covariates$lake_ID_andClass,3,3)[-c(1,2,3,7)], pch=20, cex=3,
