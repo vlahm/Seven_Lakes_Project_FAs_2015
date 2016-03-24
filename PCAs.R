@@ -1312,7 +1312,7 @@ structure<-pca.structure(cal.pca,tcal.asin.grouped,dim=7,cutoff=0.2)
 sample.scores<-cal.pca$x[,1:7]
 
 #create matrix of other covariates organized so that they can be used as cex values in the plot
-cal.indexed.covariates<-matrix(NA, nrow=length(row.names(tcal.asin.grouped)), ncol=41)
+cal.indexed.covariates<-matrix(NA, nrow=length(row.names(tcal.asin.grouped)), ncol=45)
 for (i in 1:length(cal.indexed.covariates[1,]))
 {
   for (j in 1:length(row.names(tcal.asin.grouped)))
@@ -1515,7 +1515,7 @@ structure<-pca.structure(caddis.pca,tcaddis.asin.grouped,dim=7,cutoff=0.2)
 sample.scores<-caddis.pca$x[,1:7]
 
 #create matrix of other covariates organized so that they can be used as cex values in the plot
-caddis.indexed.covariates<-matrix(NA, nrow=length(row.names(tcaddis.asin.grouped)), ncol=41)
+caddis.indexed.covariates<-matrix(NA, nrow=length(row.names(tcaddis.asin.grouped)), ncol=45)
 for (i in 1:length(caddis.indexed.covariates[1,]))
 {
   for (j in 1:length(row.names(tcaddis.asin.grouped)))
@@ -1732,7 +1732,7 @@ structure<-pca.structure(clad.pca,tclad.asin.grouped,dim=6,cutoff=0.2)
 sample.scores<-clad.pca$x[,1:6]
 
 #create matrix of other covariates organized so that they can be used as cex values in the plot
-clad.indexed.covariates<-matrix(NA, nrow=length(row.names(tclad.asin.grouped)), ncol=41)
+clad.indexed.covariates<-matrix(NA, nrow=length(row.names(tclad.asin.grouped)), ncol=45)
 for (i in 1:length(clad.indexed.covariates[1,]))
 {
   for (j in 1:length(row.names(tclad.asin.grouped)))
