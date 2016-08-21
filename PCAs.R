@@ -5,7 +5,7 @@
 
 #Notice: this script includes many trial methods that became obsolete.
 #They have been retained for future reference and code-borrowing.
-#To run the analysis in its final form, you'll need to run the material in 
+#To run the analysis in its final form, you'll need to run the material in
 #part 0 - functions and packages.  Then start with part 8.
 
 dev.off()
@@ -23,27 +23,27 @@ library(car)
 #FISH560 functions
 pca.eigenval <-
   function(x.pca,dim=length(x.pca$sdev),digits=7){
-    
+
     #check for dim limit
     if(dim>length(x.pca$sdev)){
       cat("Only",length(x.pca$sdev),"axes available\n")
       dim<-length(x.pca$sdev)
     }
-    
+
     #calculate some variables
     names<-colnames(x.pca$rotation[,1:dim])
     var<-x.pca$sdev^2
     trace<-sum(var)
     prop.var<-var/trace
-    
+
     #broken-stick distribution
     p<-length(x.pca$sdev)
     y<-rep(0,p)
     for(i in 1:p) y[i]<-1/i
     for(i in 1:p) y[i]<-sum(y[i:p])
     y<-y[1:dim]
-    
-    #print results    
+
+    #print results
     cat('Importance of components:\n')
     z<-rbind('Variance(eigenvalue)'=var[1:dim],
              'Proportion of Variance'=prop.var[1:dim],
@@ -57,14 +57,14 @@ pca.eigenval <-
 pca.eigenvec <-
   function(x.pca,dim=length(x.pca$sdev),
            digits=7,cutoff=0){
-    
-    #check for dim limit  
+
+    #check for dim limit
     if(dim>ncol(x.pca$rotation)){
       cat("Only",ncol(x.pca$rotation),"axes available\n")
       dim<-ncol(x.pca$rotation)
     }
-    
-    #print results    
+
+    #print results
     cat("\nEigenvectors:\n")
     z<-format(round(x.pca$rotation[,1:dim],digits=digits))
     z[abs(x.pca$rotation[,1:dim])<cutoff]<-substring('',1,nchar(z[1,1]))
@@ -75,17 +75,17 @@ pca.eigenvec <-
 pca.structure <-
   function(x.pca,x,dim=length(x.pca$sdev),
            digits=3,cutoff=0){
-    
+
     #check for dim limit
     if(dim>length(x.pca$sdev)){
       cat("Only",length(x.pca$sdev),"axes available\n")
       dim<-length(x.pca$sdev)
     }
-    
+
     #calculate structure correlations
     z<-cor(x,x.pca$x[,1:dim])
-    
-    #print results 
+
+    #print results
     cat("\nStructure Correlations:\n")
     z<-round(z,digits=digits)
     z[abs(z)<cutoff]<-substring('',1,nchar(z[1,1]))
@@ -97,13 +97,13 @@ ordi.monte <-
   function(x,ord,dim=length(x),perm=1000,center=TRUE,
            scale=TRUE,digits=3,plot=TRUE,col.hist='blue',col.line='red',
            lty=2,las=1,lab=c(5,5,4),...){
-    
+
     p<-length(x)
     if(dim>p){
       cat("Only",p,"axes available\n")
       dim<-p
     }
-    
+
     if(ord=='pca'){
       z<-prcomp(x,center=center,scale=scale) #prcomp analysis
       z.eig<-z$sdev[1:dim]^2 #compute eigenvalues
@@ -122,7 +122,7 @@ ordi.monte <-
       p.value<-p.value/perm #compute p-value
       names<-colnames(z$rotation[,1:dim]) #add 'PC#' names
     }
-    
+
     else if(ord=='ca'){
       library(vegan)
       z<-cca(x) #correspondence analysis
@@ -142,7 +142,7 @@ ordi.monte <-
       p.value<-p.value/perm #compute p-value
       names<-names(z$CA$eig[1:dim]) #add 'CA#' names
     }
-    
+
     else if(ord=='dca'){
       library(vegan)
       if(dim>4){
@@ -166,7 +166,7 @@ ordi.monte <-
       p.value<-p.value/perm #compute p-value
       names<-names(z$eval[1:dim]) #add 'CA#' names
     }
-    
+
     if(plot==TRUE){
       for(i in 1:dim){
         xmin<-min(min(y[[i]],z.eig[i]))
@@ -178,8 +178,8 @@ ordi.monte <-
         abline(v=z.eig[i],col=col.line,lty=lty,lwd=2,...)
         readline("Press return for next plot ")
       }
-    }  
-    
+    }
+
     cat('Randomization Test of Eigenvalues:\n')
     z<-rbind('Eigenvalue'=z.eig,'P-value'=p.value)
     colnames(z)<-names
@@ -192,20 +192,20 @@ ordi.monte <-
 ############NOTICE
 #this version of FA_PCAer should be set up to calculate percent_area correctly
 #(based on the overall total from each sample, rather than just the subsample used in
-#the PCA.  However, the spreadsheets have not been set up to run the analysis.  
-#This vein of the project was abandoned in favor of FA groupings.  
+#the PCA.  However, the spreadsheets have not been set up to run the analysis.
+#This vein of the project was abandoned in favor of FA groupings.
 
 # FA_PCAer<-function(FA.subset, all.FAs, ordi.monte=F)
 # {
 #   #read in the FAs and samples you want to test
 #   subset<-read.csv(FA.subset)
 #   all<-read.csv(all.FAs) #this is necessary for computing proportional areas
-#   
+#
 #   #find number and indices of columns containing Areal data
 #   Nsamp<-length(grep("Area",colnames(subset)))
 #   samp.ind<-grep("Area",colnames(subset))
 #   proportional.area<-matrix(data=NA, nrow=length(subset[,1]), ncol=Nsamp)
-#   
+#
 #   #create matrix of proportional area
 #   for(i in 1:Nsamp)
 #   {
@@ -222,7 +222,7 @@ ordi.monte <-
 #   proportional.area<-cbind(subset[,2:5],proportional.area)
 #   colnames(proportional.area)[5:length(proportional.area[1,])]<-gsub("Reten_", "", colnames(csv)[grep("Reten", colnames(csv))])
 #   row.names(proportional.area)<-subset[,1]
-#   
+#
 #   #the PCA...
 #   transposed<-t(as.matrix(proportional.area[,-(1:4)]))
 #   pca<-prcomp(transposed,scale=T, scores=T)
@@ -245,7 +245,7 @@ ordi.monte <-
 #   ordiplot(pca,choices=c(1,2), type="text", display="sites")
 #   arrows(0,0,pca$rotation[,1]*5, pca$rotation[,2]*5, col="red")
 #   text(pca$rotation[,1]*5.2, pca$rotation[,2]*5.2, row.names(pca$rotation))
-#   
+#
 #   if(ordi.monte==T)
 #   {
 #     details<-list(eigenvalues[,1:7], ordimonte, structure)
@@ -256,7 +256,7 @@ ordi.monte <-
 #   }
 #   return(details)
 # }
-# 
+#
 # FA_PCAer("1_allConsumers_FAoverPointFive.csv", )
 # FA_PCAer("2_allConsumers_FAoverPointSeven.csv")
 # FA_PCAer("4_caddisonly_29FAs.csv")
@@ -288,7 +288,7 @@ arrows(0,0,cal.pca$rotation[,1]*5, cal.pca$rotation[,2]*5, col="blue")
 text(cal.pca$rotation[,1]*5.2, cal.pca$rotation[,2]*5.2, row.names(cal.pca$rotation), col="blue")
 
 #comparison of distributions:
-vioplot(calanoid[1,], calanoid[2,], calanoid[3,], calanoid[4,], calanoid[5,], 
+vioplot(calanoid[1,], calanoid[2,], calanoid[3,], calanoid[4,], calanoid[5,],
         calanoid[6,], calanoid[7,], calanoid[8,], calanoid[9,], calanoid[10,], names=(rownames(calanoid)))
 #3 - Caddis####
 
@@ -313,8 +313,8 @@ arrows(0,0,caddis.pca$rotation[,1]*4, caddis.pca$rotation[,2]*4, col="blue")
 text(caddis.pca$rotation[,1]*4.2, caddis.pca$rotation[,2]*4.2, row.names(caddis.pca$rotation), col="blue")
 
 #comparison of distributions.  Do they seem to differ in the same way that the calanoid ones do?
-vioplot(caddis[1,], caddis[2,], caddis[3,], caddis[4,], caddis[5,], 
-        caddis[6,], caddis[7,], caddis[8,], caddis[9,], caddis[10,], 
+vioplot(caddis[1,], caddis[2,], caddis[3,], caddis[4,], caddis[5,],
+        caddis[6,], caddis[7,], caddis[8,], caddis[9,], caddis[10,],
         caddis[11,], names=(rownames(caddis)))
 #Should run a k-sample K-S test here.  do this for cal and clad too? will implement later.
 
@@ -348,7 +348,7 @@ arrows(0,0,clado.pca$rotation[,1]*5, clado.pca$rotation[,2]*5, col="blue")
 text(clado.pca$rotation[,1]*5.2, clado.pca$rotation[,2]*5.2, row.names(clado.pca$rotation), col="blue")
 
 #comparison of distributions
-vioplot(clado[1,], clado[2,], clado[3,], clado[4,], clado[5,], 
+vioplot(clado[1,], clado[2,], clado[3,], clado[4,], clado[5,],
         clado[6,], names=(rownames(clado)))
 #5 - Cladocera and chaoborus####
 
@@ -373,7 +373,7 @@ arrows(0,0,cc.pca$rotation[,1]*5, cc.pca$rotation[,2]*5, col="blue")
 text(cc.pca$rotation[,1]*5.2, cc.pca$rotation[,2]*5.2, row.names(cc.pca$rotation), col="blue")
 
 #comparison of distributions
-vioplot(cc[1,], cc[2,], cc[3,], cc[4,], cc[5,], 
+vioplot(cc[1,], cc[2,], cc[3,], cc[4,], cc[5,],
         cc[6,], cc[7,], cc[8,], names=(rownames(cc)))
 #6 - all together####
 setwd("C:/Users/Mike/Desktop/Grad/Projects/Thesis/Seven Lakes Project 2014/Data/FA/PCA_arrangements/misc spreadsheets")
@@ -400,7 +400,7 @@ for(i in 1:length(area.cols))
 #replace column names with IDs (ID key here: "C:\Users\Mike\Desktop\Grad\Projects\Thesis\Seven Lakes Project 2014\Data\FA\PCA_arrangements\ID_key.csv")
 #first three digits = sample number, next one is lake type, next two are organism type, last two correspond to lake name
 IDs<-c("i001215", "i002215", "i003103", "i004103", "i006303", "i007203", "i008403", "i009403", "i010203", "011i203", "i012103", "i013120",
-       "i090120", "i092303", "i108120", "i094220", "i085220", "i086220", "i087220", "i080317", "i096120", "i081318", "i082320", "i083420", "i084418", 
+       "i090120", "i092303", "i108120", "i094220", "i085220", "i086220", "i087220", "i080317", "i096120", "i081318", "i082320", "i083420", "i084418",
        "i093118", "i105320", "i106317", "i097118", "i091118", "i095118", "i017111", "i032110", "i029410", "i034210", "i041108", "i044308", "i048308",
        "i051208", "i054408", "i064108", "i071109", "i07300f", "i07400b", "i07500h", "i07600s", "i07700c", "i109107")
 colnames(proportional.area)<-IDs
@@ -418,11 +418,11 @@ write.csv(proportional.area, "C:/Users/Mike/Desktop/Grad/Projects/Thesis/Seven L
 setwd("C:/Users/Mike/Desktop/Grad/Projects/Thesis/Seven Lakes Project 2014/Data/FA/PCA_arrangements")
 # data<-read.csv("ultimate_spreadsheet.csv")
 # IDs<-c("i001215", "i002215", "i003103", "i004103", "i006303", "i007203", "i008403", "i009403", "i010203", "011i203", "i012103", "i013120",
-#        "i090120", "i092303", "i108120", "i094220", "i085220", "i086220", "i087220", "i080317", "i096120", "i081318", "i082320", "i083420", "i084418", 
+#        "i090120", "i092303", "i108120", "i094220", "i085220", "i086220", "i087220", "i080317", "i096120", "i081318", "i082320", "i083420", "i084418",
 #        "i093118", "i105320", "i106317", "i097118", "i091118", "i095118", "i017111", "i032110", "i029410", "i034210", "i041108", "i044308", "i048308",
 #        "i051208", "i054408", "i064108", "i071109", "i00000t", "i109107")
 # colnames(data)[17:60]<-IDs
-# 
+#
 # #create groupings
 # short_SAFA<-data[data$short_SAFA==1,c(1:5, 17:60)] #isolate rows
 #   short_SAFA<-colSums(short_SAFA[,7:49], na.rm=T) #sum columns
@@ -446,15 +446,15 @@ setwd("C:/Users/Mike/Desktop/Grad/Projects/Thesis/Seven Lakes Project 2014/Data/
 #   EPA_DHA<-colSums(EPA_DHA[,7:49], na.rm=T)
 # other_PUFA<-data[data$other_PUFA==1,c(1:5, 17:60)]
 #   other_PUFA<-colSums(other_PUFA[,7:49], na.rm=T)
-# 
+#
 # grouped<-rbind(short_SAFA, iSAFA_etc, other_MUFA, LIN, other_n3_n6_PUFA, OA_16.4n3,
 #       ALA_SDA, long_SAFA, ARA, EPA_DHA, other_PUFA)
-# 
-# #need to combine samples for periphyton and POM.  too many zero values in those 
+#
+# #need to combine samples for periphyton and POM.  too many zero values in those
 # #categories.  Is it legal to combine, or are the distributions very dissimilar?
 # #comparing probability distributions of periphyton
 # qqplot(data[,49], data[,50]); abline(0,1)
-# qqplot(data[,49], data[,51]); abline(0,1) 
+# qqplot(data[,49], data[,51]); abline(0,1)
 # qqplot(data[,51], data[,50]); abline(0,1)
 # #probably not cool to combine periphyton.  Comparing POM.
 # qqplot(data[,52], data[,53]); abline(0,1)
@@ -477,7 +477,7 @@ setwd("C:/Users/Mike/Desktop/Grad/Projects/Thesis/Seven Lakes Project 2014/Data/
 #combined POM and peri samples in Excel
 data<-read.csv("ultimate_spreadsheet_POMandPeriCombinedLakes.csv")
 IDs<-c("i001215", "i002215", "i003103", "i004103", "i006303", "i007203", "i008403", "i009403", "i010203", "011i203", "i012103", "i013120",
-       "i090120", "i092303", "i108120", "i094220", "i085220", "i086220", "i087220", "i080317", "i096120", "i081301", "i082320", "i083420", "i084401", 
+       "i090120", "i092303", "i108120", "i094220", "i085220", "i086220", "i087220", "i080317", "i096120", "i081301", "i082320", "i083420", "i084401",
        "i093101", "i105320", "i106317", "i097101", "i091101", "i095101", "i017111", "i000504", "i000508", "i071109", "i000514", "i109107")
 colnames(data)[16:52]<-IDs
 
@@ -542,8 +542,8 @@ fig1<-ordiplot(pca, choices=c(1,2), type="none", xlim=c(-4,4), ylim=c(-4,4))
 points(fig1, "sites", pch=as.numeric(substr(row.names(tgrouped),6,7)), col=as.numeric(substr(row.names(tgrouped),5,5)))  #good example of argument matching for later use (match.arg)
 arrows(0,0,pca$rotation[,1]*5, pca$rotation[,2]*5, col="black")
 text(pca$rotation[,1]*5.8, pca$rotation[,2]*5.8, row.names(pca$rotation))
-legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
-                           "fish", "POM", "periphyton", "filamentous", "moss", 
+legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
+                           "fish", "POM", "periphyton", "filamentous", "moss",
                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
                                                             11, 7, 9, 14))
 legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
@@ -554,7 +554,7 @@ legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"
 #combined POM and peri samples in Excel
 
 # IDs<-c("i001215", "i002215", "i003103", "i004103", "i006303", "i007203", "i008403", "i009403", "i010403", "i011203", "i012203", "i013103",
-#        "i090120", "i092120", "i108303", "i094120", "i085220", "i086220", "i087220", "i080317", "i096120", "i081301", "i082320", "i083420", "i084401", 
+#        "i090120", "i092120", "i108303", "i094120", "i085220", "i086220", "i087220", "i080317", "i096120", "i081301", "i082320", "i083420", "i084401",
 #        "i093101", "i105320", "i106317", "i097101", "i091101", "i095101", "i017111", "i000504", "i000508", "i071109", "i000514", "i109107")
 # colnames(data)[16:52]<-IDs
 
@@ -644,8 +644,8 @@ cal.fig<-ordiplot(cal.pca, choices=c(1,2), type="none", xlim=c(-6,3), ylim=c(-5,
 points(cal.fig, "sites", pch=as.numeric(substr(row.names(tcal.asin.grouped),6,7)), col=as.numeric(substr(row.names(tcal.asin.grouped),5,5)))
 arrows(0,0,cal.pca$rotation[,1]*5, cal.pca$rotation[,2]*5, col="black")
 text(cal.pca$rotation[,1]*5.8, cal.pca$rotation[,2]*5.8, row.names(cal.pca$rotation))
-legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
-                           "fish", "POM", "periphyton", "filamentous", "moss", 
+legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
+                           "fish", "POM", "periphyton", "filamentous", "moss",
                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
                                                             11, 7, 9, 14))
 legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
@@ -657,8 +657,8 @@ cal.fig<-ordiplot(cal.pca, choices=c(3,4), type="none", xlim=c(-4,4), ylim=c(-4,
 points(cal.fig, "sites", pch=as.numeric(substr(row.names(tcal.asin.grouped),6,7)), col=as.numeric(substr(row.names(tcal.asin.grouped),5,5)))
 arrows(0,0,cal.pca$rotation[,3]*5, cal.pca$rotation[,4]*5, col="black")
 text(cal.pca$rotation[,3]*5.8, cal.pca$rotation[,4]*5.8, row.names(cal.pca$rotation))
-legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
-                           "fish", "POM", "periphyton", "filamentous", "moss", 
+legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
+                           "fish", "POM", "periphyton", "filamentous", "moss",
                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
                                                             11, 7, 9, 14))
 legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
@@ -667,8 +667,8 @@ legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"
 #are there obvious differences among the frequency distributions?
 
 # #vio.data is the same as dist.data
-# vioplot(vio.data[,cal.cols[1]], vio.data[,cal.cols[2]], vio.data[,cal.cols[3]], vio.data[,cal.cols[4]], vio.data[,cal.cols[5]], 
-#         vio.data[,cal.cols[6]], vio.data[,cal.cols[7]], vio.data[,cal.cols[8]], vio.data[,cal.cols[9]], vio.data[,cal.cols[10]], 
+# vioplot(vio.data[,cal.cols[1]], vio.data[,cal.cols[2]], vio.data[,cal.cols[3]], vio.data[,cal.cols[4]], vio.data[,cal.cols[5]],
+#         vio.data[,cal.cols[6]], vio.data[,cal.cols[7]], vio.data[,cal.cols[8]], vio.data[,cal.cols[9]], vio.data[,cal.cols[10]],
 #         names=(colnames(vio.data[,cal.cols])), h=3, wex=1)
 
 par(mar=c(0,5,0,0))
@@ -678,11 +678,11 @@ for(i in 1:10)
   if (substr(colnames(dist.data[cal.cols[i]]),5,5)==1)
   {
     plot(dist.data[,cal.cols[i]], type="l", ylab=colnames(dist.data[cal.cols[i]]), xlab="", col="blue")
-  }  
+  }
   else if (substr(colnames(dist.data[cal.cols[i]]),5,5)==2)
   {
     plot(dist.data[,cal.cols[i]], type="l", ylab=colnames(dist.data[cal.cols[i]]), xlab="", col="red")
-  } 
+  }
   else if (substr(colnames(dist.data[cal.cols[i]]),5,5)==3)
   {
     plot(dist.data[,cal.cols[i]], type="l", ylab=colnames(dist.data[cal.cols[i]]), xlab="", col="black")
@@ -756,8 +756,8 @@ caddis.fig<-ordiplot(caddis.pca, choices=c(1,2), type="none", xlim=c(-5,3), ylim
 points(caddis.fig, "sites", pch=as.numeric(substr(row.names(tcaddis.asin.grouped),6,7)), col=as.numeric(substr(row.names(tcaddis.asin.grouped),5,5)))
 arrows(0,0,caddis.pca$rotation[,1]*5, caddis.pca$rotation[,2]*5, col="black")
 text(caddis.pca$rotation[,1]*5.8, caddis.pca$rotation[,2]*5.8, row.names(caddis.pca$rotation))
-legend("bottomleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
-                           "fish", "POM", "periphyton", "filamentous", "moss", 
+legend("bottomleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
+                           "fish", "POM", "periphyton", "filamentous", "moss",
                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
                                                             11, 7, 9, 14))
 legend("bottomright", legend=c("puddles", "high", "milk+clear", "big", "combined"),
@@ -769,8 +769,8 @@ caddis.fig<-ordiplot(caddis.pca, choices=c(2,3), type="none", xlim=c(-5,3), ylim
 points(caddis.fig, "sites", pch=as.numeric(substr(row.names(tcaddis.asin.grouped),6,7)), col=as.numeric(substr(row.names(tcaddis.asin.grouped),5,5)))
 arrows(0,0,caddis.pca$rotation[,2]*5, caddis.pca$rotation[,3]*5, col="black")
 text(caddis.pca$rotation[,2]*5.8, caddis.pca$rotation[,3]*5.8, row.names(caddis.pca$rotation))
-legend("bottomleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
-                           "fish", "POM", "periphyton", "filamentous", "moss", 
+legend("bottomleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
+                           "fish", "POM", "periphyton", "filamentous", "moss",
                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
                                                             11, 7, 9, 14))
 legend("bottomright", legend=c("puddles", "high", "milk+clear", "big", "combined"),
@@ -781,8 +781,8 @@ caddis.fig<-ordiplot(caddis.pca, choices=c(1,3), type="none", xlim=c(-5,3), ylim
 points(caddis.fig, "sites", pch=as.numeric(substr(row.names(tcaddis.asin.grouped),6,7)), col=as.numeric(substr(row.names(tcaddis.asin.grouped),5,5)))
 arrows(0,0,caddis.pca$rotation[,1]*5, caddis.pca$rotation[,3]*5, col="black")
 text(caddis.pca$rotation[,1]*5.8, caddis.pca$rotation[,3]*5.8, row.names(caddis.pca$rotation))
-legend("bottomleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
-                              "fish", "POM", "periphyton", "filamentous", "moss", 
+legend("bottomleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
+                              "fish", "POM", "periphyton", "filamentous", "moss",
                               "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
                                                                11, 7, 9, 14))
 legend("bottomright", legend=c("puddles", "high", "milk+clear", "big", "combined"),
@@ -796,11 +796,11 @@ for(i in 1:11)
   if (substr(colnames(dist.data[caddis.cols[i]]),5,5)==1)
   {
     plot(dist.data[,caddis.cols[i]], type="l", ylab=colnames(dist.data[caddis.cols[i]]), xlab="", col="blue")
-  }  
+  }
   else if (substr(colnames(dist.data[caddis.cols[i]]),5,5)==2)
   {
     plot(dist.data[,caddis.cols[i]], type="l", ylab=colnames(dist.data[caddis.cols[i]]), xlab="", col="red")
-  } 
+  }
   else if (substr(colnames(dist.data[caddis.cols[i]]),5,5)==3)
   {
     plot(dist.data[,caddis.cols[i]], type="l", ylab=colnames(dist.data[caddis.cols[i]]), xlab="", col="black")
@@ -872,8 +872,8 @@ clad.fig<-ordiplot(clad.pca, choices=c(1,2), type="none", xlim=c(-4,5), ylim=c(-
 points(clad.fig, "sites", pch=as.numeric(substr(row.names(tclad.asin.grouped),6,7)), col=as.numeric(substr(row.names(tclad.asin.grouped),5,5)))
 arrows(0,0,clad.pca$rotation[,1]*5, clad.pca$rotation[,2]*5, col="black")
 text(clad.pca$rotation[,1]*5.8, clad.pca$rotation[,2]*5.8, row.names(clad.pca$rotation))
-legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
-                           "fish", "POM", "periphyton", "filamentous", "moss", 
+legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
+                           "fish", "POM", "periphyton", "filamentous", "moss",
                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
                                                             11, 7, 9, 14))
 legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
@@ -885,8 +885,8 @@ clad.fig<-ordiplot(clad.pca, choices=c(3,4), type="none", xlim=c(-4,5), ylim=c(-
 points(clad.fig, "sites", pch=as.numeric(substr(row.names(tclad.asin.grouped),6,7)), col=as.numeric(substr(row.names(tclad.asin.grouped),5,5)))
 arrows(0,0,clad.pca$rotation[,3]*5, clad.pca$rotation[,4]*5, col="black")
 text(clad.pca$rotation[,3]*5.8, clad.pca$rotation[,4]*5.8, row.names(clad.pca$rotation))
-legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
-                           "fish", "POM", "periphyton", "filamentous", "moss", 
+legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
+                           "fish", "POM", "periphyton", "filamentous", "moss",
                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
                                                             11, 7, 9, 14))
 legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
@@ -900,11 +900,11 @@ for(i in 1:6)
   if (substr(colnames(dist.data[clad.cols[i]]),5,5)==1)
   {
     plot(dist.data[,clad.cols[i]], type="l", ylab=colnames(dist.data[clad.cols[i]]), xlab="", col="blue")
-  }  
+  }
   else if (substr(colnames(dist.data[clad.cols[i]]),5,5)==2)
   {
     plot(dist.data[,clad.cols[i]], type="l", ylab=colnames(dist.data[clad.cols[i]]), xlab="", col="red")
-  } 
+  }
   else if (substr(colnames(dist.data[clad.cols[i]]),5,5)==3)
   {
     plot(dist.data[,clad.cols[i]], type="l", ylab=colnames(dist.data[clad.cols[i]]), xlab="", col="black")
@@ -976,8 +976,8 @@ all.fig<-ordiplot(all.pca, choices=c(1,2), type="none", xlim=c(-4,5), ylim=c(-4,
 points(all.fig, "sites", pch=as.numeric(substr(row.names(tall.asin.grouped),6,7)), col=as.numeric(substr(row.names(tall.asin.grouped),5,5)))
 arrows(0,0,all.pca$rotation[,1]*5, all.pca$rotation[,2]*5, col="black")
 text(all.pca$rotation[,1]*5.8, all.pca$rotation[,2]*5.8, row.names(all.pca$rotation))
-legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
-                           "fish", "POM", "periphyton", "filamentous", "moss", 
+legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
+                           "fish", "POM", "periphyton", "filamentous", "moss",
                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
                                                             11, 7, 9, 14))
 legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
@@ -989,24 +989,24 @@ legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"
 # points(all.fig, "sites", pch=as.numeric(substr(row.names(tall.asin.grouped),6,7)), col=as.numeric(substr(row.names(tall.asin.grouped),5,5)))
 # arrows(0,0,all.pca$rotation[,3]*5, all.pca$rotation[,4]*5, col="black")
 # text(all.pca$rotation[,3]*5.8, all.pca$rotation[,4]*5.8, row.names(all.pca$rotation))
-# legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
-#                            "fish", "POM", "periphyton", "filamentous", "moss", 
+# legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
+#                            "fish", "POM", "periphyton", "filamentous", "moss",
 #                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
 #                                                             11, 7, 9, 14))
 # legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
 #        fill=c(1, 2, 3, 4, 5))
-# 
+#
 
 ########13 - NMDS functions - must run PCAs before corresponding NMDSs will work####
 nmds.scree <-
   function(x,distance='bray',k=6,trymax=50,
            autotransform=FALSE,trace=0,...){
-    
+
     library(vegan)
     library(MASS)
-    
+
     old.par<-par(no.readonly=TRUE)
-    
+
     nmds.stress<-rep(0,k)
     nmds.dim<-c(1:k)
     for(i in 1:k){
@@ -1017,7 +1017,7 @@ nmds.scree <-
     plot(nmds.dim,nmds.stress,type='o',pch=19,col='blue',
          ylab='Stress',xlab='Ordination Axis',
          main='Scree Plot of Stress vs. Dimension',...)
-    
+
     par(old.par)
   }
 
@@ -1025,15 +1025,15 @@ nmds.monte <-
   function(x,k,distance='bray',trymax=50,autotransform=FALSE,
            trace=0,zerodist='add',perm=100,col.hist='blue',col.line='red',
            lty=2,las=1,lab=c(5,5,4),...){
-    
+
     library(vegan)
     library(MASS)
-    
+
     z<-metaMDS(comm=x,k=k,distance=distance,trymax=trymax,
                autotransform=autotransform,trace=trace,...) #nmds analysis
     z.stress<-z$stress #get stress
     y.stress<-rep(0,perm)
-    
+
     for(i in 1:perm){
       y<-apply(x,2,sample) #permute data matrix
       y<-metaMDS(comm=y,k=k,distance=distance,trymax=trymax,
@@ -1042,14 +1042,14 @@ nmds.monte <-
     }
     n<-sum(y.stress<=z.stress) #compute number of random runs with stress < observed
     p.value<-(1+n)/(1+perm) #compute p-value
-    
+
     xmin<-min(z.stress,min(y.stress))
     xmax<-max(z.stress,max(y.stress))
     hist(y.stress,col=col.hist,las=las,lab=lab,
          xaxs='i',yaxs='i',xlim=c(xmin,xmax),xlab='Stress',
          main=paste('Random Permutation Distribution of Stress for',k,'Dimensions',sep=' '),...)
     abline(v=z.stress,col=col.line,lty=lty,lwd=2,...)
-    
+
     cat('Randomization Test of Stress:\n')
     cat('Permutation stress values:\n')
     print(y.stress)
@@ -1085,8 +1085,8 @@ cal.loadings<-envfit(cal.nmds$points, tcal.grouped, perm=1000)
 cal.fig2<-ordiplot(cal.nmds, choices=c(1,2), type="none", main="Cal NMDS1 and 2")
 plot(cal.loadings, p.max=.05, col="black")
 points(cal.fig2, "sites", pch=as.numeric(substr(row.names(tcal.grouped),6,7)), col=as.numeric(substr(row.names(tcal.grouped),5,5)))
-legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
-                           "fish", "POM", "periphyton", "filamentous", "moss", 
+legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
+                           "fish", "POM", "periphyton", "filamentous", "moss",
                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
                                                             11, 7, 9, 14))
 legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
@@ -1123,7 +1123,7 @@ legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"
 # cal.nmds.plot<-ggplot(cal.scores)+
 #   geom_point(mapping=aes(x=NMDS1, y=NMDS2, colour=Lake_Type, shape=Organism))+
 # #   scale_color_manual(values=c("darkslategray2", "darkseagreen2", "lightgoldenrod2", "darkorange2", "indianred2"),
-# #                     name="Lake Type", 
+# #                     name="Lake Type",
 #   scale_shape_identity(guide="legend")+ #tells "shape" to accept integers as direct specifiers of pch
 #   coord_fixed()+ #need aspect ratio of 1?
 #   geom_segment(data=cal.spp,
@@ -1172,8 +1172,8 @@ caddis.loadings<-envfit(caddis.nmds$points, tcaddis.grouped, perm=1000); caddis.
 caddis.fig2<-ordiplot(caddis.nmds, choices=c(1,2), type="none", main="Caddis NMDS1 and 2")
 plot(caddis.loadings, p.max=.05, col="black")
 points(caddis.fig2, "sites", pch=as.numeric(substr(row.names(tcaddis.grouped),6,7)), col=as.numeric(substr(row.names(tcaddis.grouped),5,5)))
-legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
-                           "fish", "POM", "periphyton", "filamentous", "moss", 
+legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
+                           "fish", "POM", "periphyton", "filamentous", "moss",
                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
                                                             11, 7, 9, 14))
 legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
@@ -1207,13 +1207,13 @@ clad.loadings<-envfit(clad.nmds$points, tclad.grouped, perm=1000); clad.loadings
 clad.fig2<-ordiplot(clad.nmds, choices=c(1,2), type="none", main="clad NMDS1 and 2")
 plot(clad.loadings, p.max=.06, col="black")
 points(clad.fig2, "sites", pch=as.numeric(substr(row.names(tclad.grouped),6,7)), col=as.numeric(substr(row.names(tclad.grouped),5,5)))
-legend("topright", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
-                           "fish", "POM", "periphyton", "filamentous", "moss", 
+legend("topright", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
+                           "fish", "POM", "periphyton", "filamentous", "moss",
                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
                                                             11, 7, 9, 14))
 legend("bottomright", legend=c("puddles", "high", "milk+clear", "big", "combined"),
        fill=c(1, 2, 3, 4, 5))
-####17 - NMDS all ####
+####17 - NMDS all (gotta run PCA-all first)####
 
 #this performs the NMDS
 tall.grouped<-t(as.matrix(all.grouped))
@@ -1242,8 +1242,8 @@ all.loadings<-envfit(all.nmds$points, tall.grouped, perm=1000); all.loadings
 all.fig2<-ordiplot(all.nmds, choices=c(1,2), type="none", main="All NMDS1 and 2")
 plot(all.loadings, p.max=.08, col="black")
 points(all.fig2, "sites", pch=as.numeric(substr(row.names(tall.grouped),6,7)), col=as.numeric(substr(row.names(tall.grouped),5,5)))
-legend("topright", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
-                            "fish", "POM", "periphyton", "filamentous", "moss", 
+legend("topright", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
+                            "fish", "POM", "periphyton", "filamentous", "moss",
                             "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
                                                              11, 7, 9, 14))
 legend("bottomright", legend=c("puddles", "high", "milk+clear", "big", "combined"),
@@ -1328,14 +1328,14 @@ cal.indexed.covariates[,1]<-c("C", "O", "Z", "Mirror", "Y025", "Y015", "L", "Cle
 #plot PCA
 #first and second principal components (showing watershed area:lake area ratio)
 cal.fig<-ordiplot(cal.pca, choices=c(1,2), type="none", xlim=c(-4,3), ylim=c(-3,4), main="Calanoid PCA; size = color:chlA")
-points(cal.fig, "sites", pch=as.numeric(substr(row.names(tcal.asin.grouped),6,7)), 
+points(cal.fig, "sites", pch=as.numeric(substr(row.names(tcal.asin.grouped),6,7)),
        col=as.numeric(substr(row.names(tcal.asin.grouped),5,5)), cex=rescale(cal.indexed.covariates$color_chlA, c(2,15))) #rescales all variables to range: 2-15
 # points(cal.fig, "sites", pch=3, bg="transparent", col="gray", cex=rescale(cal.indexed.covariates$lake_area, c(2,15)))
 # points(cal.fig, "sites", pch=21, bg="transparent", col="gray", cex=rescale(cal.indexed.covariates$shed_lake_areaRatio, c(2,15)))
 arrows(0,0,cal.pca$rotation[,1]*5, cal.pca$rotation[,2]*5, col="purple")
 text(cal.pca$rotation[,1]*5.8, cal.pca$rotation[,2]*5.8, row.names(cal.pca$rotation), col="purple")
-# legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
-#                            "fish", "POM", "periphyton", "filamentous", "moss", 
+# legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
+#                            "fish", "POM", "periphyton", "filamentous", "moss",
 #                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4, 11, 7, 9, 14))
 legend("bottomleft", legend=c("sm low forested", "med mid forested", "lg low forested", "high unforested"),
        fill=c(1, 3, 4, 2))
@@ -1347,14 +1347,14 @@ legend("bottomleft", legend=c("sm low forested", "med mid forested", "lg low for
 for (i in 3:length(cal.indexed.covariates[1,]))
 {
   cal.fig<-ordiplot(cal.pca, choices=c(1,2), type="none", xlim=c(-6,3), ylim=c(-5,4), main=paste("Cal PC1 and 2, size = ", colnames(cal.indexed.covariates)[i]))
-  points(cal.fig, "sites", pch=as.numeric(substr(row.names(tcal.asin.grouped),6,7)), 
+  points(cal.fig, "sites", pch=as.numeric(substr(row.names(tcal.asin.grouped),6,7)),
          col=as.numeric(substr(row.names(tcal.asin.grouped),5,5)), cex=rescale(cal.indexed.covariates[,i], c(2,15))) #rescales all variables to range: 2-15
   points(cal.fig, "sites", pch=3, bg="transparent", col="gray", cex=rescale(cal.indexed.covariates$lake_area, c(2,15)))
   points(cal.fig, "sites", pch=21, bg="transparent", col="gray", cex=rescale(cal.indexed.covariates$shed_lake_areaRatio, c(2,15)))
   arrows(0,0,cal.pca$rotation[,1]*5, cal.pca$rotation[,2]*5, col="purple")
   text(cal.pca$rotation[,1]*5.8, cal.pca$rotation[,2]*5.8, row.names(cal.pca$rotation), col="purple")
-  legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
-                             "fish", "POM", "periphyton", "filamentous", "moss", 
+  legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
+                             "fish", "POM", "periphyton", "filamentous", "moss",
                              "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
                                                               11, 7, 9, 14))
   legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
@@ -1362,7 +1362,7 @@ for (i in 3:length(cal.indexed.covariates[1,]))
   legend("bottom", legend=c("gray cross = lake area", "gray circle = watershedA:lakeA"))
 }
 
-#notable covariates: CO2, CH4, 
+#notable covariates: CO2, CH4,
 
 #plot cal d13c vs cal d15n (should show inverse relationship).  (then color by lake type) and size by other covariates
 #until you find one that follows the trendline in either direction.
@@ -1383,8 +1383,8 @@ cal.fig<-ordiplot(cal.pca, choices=c(3,4), type="none", xlim=c(-4,4), ylim=c(-4,
 points(cal.fig, "sites", pch=as.numeric(substr(row.names(tcal.asin.grouped),6,7)), col=as.numeric(substr(row.names(tcal.asin.grouped),5,5)))
 arrows(0,0,cal.pca$rotation[,3]*5, cal.pca$rotation[,4]*5, col="black")
 text(cal.pca$rotation[,3]*5.8, cal.pca$rotation[,4]*5.8, row.names(cal.pca$rotation))
-legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
-                           "fish", "POM", "periphyton", "filamentous", "moss", 
+legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
+                           "fish", "POM", "periphyton", "filamentous", "moss",
                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
                                                             11, 7, 9, 14))
 legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
@@ -1399,11 +1399,11 @@ for(i in 1:10)
   if (substr(colnames(dist.data[cal.cols[i]]),5,5)==1)
   {
     plot(dist.data[,cal.cols[i]], type="o", ylab=colnames(dist.data[cal.cols[i]]), xlab="", col="black", xaxt="n", ylim=c(0,25))
-  }  
+  }
   else if (substr(colnames(dist.data[cal.cols[i]]),5,5)==2)
   {
     plot(dist.data[,cal.cols[i]], type="o", ylab=colnames(dist.data[cal.cols[i]]), xlab="", col="red", xaxt="n", ylim=c(0,25))
-  } 
+  }
   else if (substr(colnames(dist.data[cal.cols[i]]),5,5)==3)
   {
     plot(dist.data[,cal.cols[i]], type="o", ylab=colnames(dist.data[cal.cols[i]]), xlab="", col="green", xaxt="n", ylim=c(0,25))
@@ -1411,7 +1411,7 @@ for(i in 1:10)
   else if (substr(colnames(dist.data[cal.cols[i]]),5,5)==4)
   {
     plot(dist.data[,cal.cols[i]], type="o", ylab=colnames(dist.data[cal.cols[i]]), xlab="", col="blue", xaxt="n", ylim=c(0,25))
-    axis(side=1, at=c(4,6,8,10,12,16,22,26,28,33,34,35,38,41,42,43,50,52,56,58,60), 
+    axis(side=1, at=c(4,6,8,10,12,16,22,26,28,33,34,35,38,41,42,43,50,52,56,58,60),
          labels=dist.data$FA_name[c(4,6,8,10,12,16,22,26,28,33,34,35,38,41,42,43,50,52,56,58,60)], las=2)
   }
 }
@@ -1534,15 +1534,15 @@ caddis.ID<-c('C','C','k','m','M','M','N','y','Y','Z','c')
 #IDcorrespond<-c('C','C','Milk','mirror','Morgenroth','Morgenroth','No_Name','Y015','Y025','Z','Clear')
 #first and second principal components (showing watershed area:lake area ratio)
 caddis.fig<-ordiplot(caddis.pca, choices=c(1,2), type="none", xlim=c(-4,3), ylim=c(-4,4), main="Caddis PC 1 and 2, sized by watershed:lake area ratio")
-points(caddis.fig, "sites", pch=20, 
+points(caddis.fig, "sites", pch=20,
        col=as.numeric(substr(row.names(tcaddis.asin.grouped),5,5)), cex=rescale(caddis.indexed.covariates$shed_lake_areaRatio[c(1,1,2,3,4,4,5,6,7,8,9)], c(2,15))) #rescales all variables to range: 2-15
 points(caddis.fig, "sites", pch=caddis.ID, col='yellow')
 # points(caddis.fig, "sites", pch=3, bg="transparent", col="gray", cex=rescale(caddis.indexed.covariates$lake_area, c(2,15)))
 # points(caddis.fig, "sites", pch=21, bg="transparent", col="gray", cex=rescale(caddis.indexed.covariates$shed_lake_areaRatio, c(2,15)))
 arrows(0,0,caddis.pca$rotation[,1]*5, caddis.pca$rotation[,2]*5, col="purple")
 text(caddis.pca$rotation[,1]*5.8, caddis.pca$rotation[,2]*5.8, row.names(caddis.pca$rotation), col="purple")
-# legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
-#                            "fish", "POM", "periphyton", "filamentous", "moss", 
+# legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
+#                            "fish", "POM", "periphyton", "filamentous", "moss",
 #                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4, 11, 7, 9, 14))
 legend("topleft", legend=c("sm low forested", "med mid forested", "lg low forested", "high unforested"),
        fill=c(1, 3, 4, 2))
@@ -1551,7 +1551,7 @@ legend("topleft", legend=c("sm low forested", "med mid forested", "lg low forest
 #plot PC 1 and 3
 #first and second principal components (showing watershed area:lake area ratio)
 caddis.fig<-ordiplot(caddis.pca, choices=c(1,3), type="none", xlim=c(-4,3), ylim=c(-4,5), main="Caddis PC 1 and 3, sized by watershed:lake area ratio")
-points(caddis.fig, "sites", pch=20, 
+points(caddis.fig, "sites", pch=20,
        col=as.numeric(substr(row.names(tcaddis.asin.grouped),5,5)), cex=rescale(caddis.indexed.covariates$shed_lake_areaRatio[c(1,1,2,3,4,4,5,6,7,8,9)], c(2,15))) #rescales all variables to range: 2-15
 points(caddis.fig, "sites", pch=ID, col='yellow')
 arrows(0,0,caddis.pca$rotation[,1]*5, caddis.pca$rotation[,3]*5, col="purple")
@@ -1564,14 +1564,14 @@ legend("bottomleft", legend=c("small forested", "med forested", "large forested"
 # for (i in 3:length(caddis.indexed.covariates[1,]))
 # {
 #   caddis.fig<-ordiplot(caddis.pca, choices=c(1,2), type="none", xlim=c(-6,3), ylim=c(-5,4), main=paste("caddis PC1 and 2, size = ", colnames(caddis.indexed.covariates)[i]))
-#   points(caddis.fig, "sites", pch=as.numeric(substr(row.names(tcaddis.asin.grouped),6,7)), 
+#   points(caddis.fig, "sites", pch=as.numeric(substr(row.names(tcaddis.asin.grouped),6,7)),
 #          col=as.numeric(substr(row.names(tcaddis.asin.grouped),5,5)), cex=rescale(caddis.indexed.covariates[,i], c(2,15))) #rescales all variables to range: 2-15
 #   points(caddis.fig, "sites", pch=3, bg="transparent", col="gray", cex=rescale(caddis.indexed.covariates$lake_area, c(2,15)))
 #   points(caddis.fig, "sites", pch=21, bg="transparent", col="gray", cex=rescale(caddis.indexed.covariates$shed_lake_areaRatio, c(2,15)))
 #   arrows(0,0,caddis.pca$rotation[,1]*5, caddis.pca$rotation[,2]*5, col="purple")
 #   text(caddis.pca$rotation[,1]*5.8, caddis.pca$rotation[,2]*5.8, row.names(caddis.pca$rotation), col="purple")
-#   legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
-#                              "fish", "POM", "periphyton", "filamentous", "moss", 
+#   legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
+#                              "fish", "POM", "periphyton", "filamentous", "moss",
 #                              "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
 #                                                               11, 7, 9, 14))
 #   legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
@@ -1579,7 +1579,7 @@ legend("bottomleft", legend=c("small forested", "med forested", "large forested"
 #   legend("bottom", legend=c("gray cross = lake area", "gray circle = watershedA:lakeA"))
 # }
 
-#notable covariates: CO2, CH4, 
+#notable covariates: CO2, CH4,
 
 #plot caddis d13c vs caddis d15n (should show inverse relationship).  (then color by lake type) and size by other covariates
 #until you find one that follows the trendline in either direction.
@@ -1600,13 +1600,13 @@ for(i in 3:length(caddis.indexed.covariates[1,]))
 # points(caddis.fig, "sites", pch=as.numeric(substr(row.names(tcaddis.asin.grouped),6,7)), col=as.numeric(substr(row.names(tcaddis.asin.grouped),5,5)))
 # arrows(0,0,caddis.pca$rotation[,3]*5, caddis.pca$rotation[,4]*5, col="black")
 # text(caddis.pca$rotation[,3]*5.8, caddis.pca$rotation[,4]*5.8, row.names(caddis.pca$rotation))
-# legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
-#                            "fish", "POM", "periphyton", "filamentous", "moss", 
+# legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
+#                            "fish", "POM", "periphyton", "filamentous", "moss",
 #                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
 #                                                             11, 7, 9, 14))
 # legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
 #        fill=c(1, 2, 3, 4, 5))
-# 
+#
 # #are there obvious differences among the frequency distributions?
 
 par(mar=c(0,5,0,0))
@@ -1616,15 +1616,15 @@ for(i in 1:10)
   if (substr(colnames(dist.data[caddis.cols[i]]),5,5)==1)
   {
     plot(dist.data[,caddis.cols[i]], type="l", ylab=colnames(dist.data[caddis.cols[i]]), xlab="", col="black", xaxt="n", ylim=c(0,25))
-  }  
+  }
   else if (substr(colnames(dist.data[caddis.cols[i]]),5,5)==2)
   {
     plot(dist.data[,caddis.cols[i]], type="l", ylab=colnames(dist.data[caddis.cols[i]]), xlab="", col="red", xaxt="n", ylim=c(0,25))
-  } 
+  }
   else if (substr(colnames(dist.data[caddis.cols[i]]),5,5)==3)
   {
     plot(dist.data[,caddis.cols[i]], type="l", ylab=colnames(dist.data[caddis.cols[i]]), xlab="", col="green", xaxt="n", ylim=c(0,25))
-    axis(side=1, at=c(4,6,10,12,16,20,22,26,28,30,33,34,35,38,41,44,46,50,52,53,59), 
+    axis(side=1, at=c(4,6,10,12,16,20,22,26,28,30,33,34,35,38,41,44,46,50,52,53,59),
          labels=dist.data$FA_name[c(4,6,10,12,16,20,22,26,28,30,33,34,35,38,41,44,46,50,52,53,59)], las=2)
   }
   else if (substr(colnames(dist.data[caddis.cols[i]]),5,5)==4)
@@ -1749,15 +1749,15 @@ clad.indexed.covariates[,1]<-c("Clear", "Morgenroth", "O", "L", "C", "Z")
 #first and second principal components (showing watershed area:lake area ratio)
 clad.ID <- c('c','M','O','L','C','Z')
 clad.fig<-ordiplot(clad.pca, choices=c(1,2), type="none", xlim=c(-4,4), ylim=c(-3,3), main="Cladocera PCA, sized by watershed:lake area ratio")
-points(clad.fig, "sites", pch=20, 
+points(clad.fig, "sites", pch=20,
        col=as.numeric(substr(row.names(tclad.asin.grouped),5,5)), cex=rescale(clad.indexed.covariates$shed_lake_areaRatio, c(2,15))) #rescales all variables to range: 2-15
 points(clad.fig, "sites", pch=clad.ID, col='yellow')
 # points(clad.fig, "sites", pch=3, bg="transparent", col="gray", cex=rescale(clad.indexed.covariates$lake_area, c(2,15)))
 # points(clad.fig, "sites", pch=21, bg="transparent", col="gray", cex=rescale(clad.indexed.covariates$shed_lake_areaRatio, c(2,15)))
 arrows(0,0,clad.pca$rotation[,1]*5, clad.pca$rotation[,2]*5, col="purple")
 text(clad.pca$rotation[,1]*5.8, clad.pca$rotation[,2]*5.8, row.names(clad.pca$rotation), col="purple")
-# legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
-#                            "fish", "POM", "periphyton", "filamentous", "moss", 
+# legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
+#                            "fish", "POM", "periphyton", "filamentous", "moss",
 #                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4, 11, 7, 9, 14))
 legend("bottomleft", legend=c("small forested", "med forested", "large forested", "unforested"),
        fill=c(1, 3, 4, 2))
@@ -1769,14 +1769,14 @@ legend("bottomleft", legend=c("small forested", "med forested", "large forested"
 # for (i in 3:length(clad.indexed.covariates[1,]))
 # {
 #   clad.fig<-ordiplot(clad.pca, choices=c(1,2), type="none", xlim=c(-6,3), ylim=c(-5,4), main=paste("clad PC1 and 2, size = ", colnames(clad.indexed.covariates)[i]))
-#   points(clad.fig, "sites", pch=as.numeric(substr(row.names(tcal.asin.grouped),6,7)), 
+#   points(clad.fig, "sites", pch=as.numeric(substr(row.names(tcal.asin.grouped),6,7)),
 #          col=as.numeric(substr(row.names(tcal.asin.grouped),5,5)), cex=rescale(clad.indexed.covariates[,i], c(2,15))) #rescales all variables to range: 2-15
 #   points(clad.fig, "sites", pch=3, bg="transparent", col="gray", cex=rescale(clad.indexed.covariates$lake_area, c(2,15)))
 #   points(clad.fig, "sites", pch=21, bg="transparent", col="gray", cex=rescale(clad.indexed.covariates$shed_lake_areaRatio, c(2,15)))
 #   arrows(0,0,clad.pca$rotation[,1]*5, clad.pca$rotation[,2]*5, col="purple")
 #   text(clad.pca$rotation[,1]*5.8, clad.pca$rotation[,2]*5.8, row.names(clad.pca$rotation), col="purple")
-#   legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
-#                              "fish", "POM", "periphyton", "filamentous", "moss", 
+#   legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
+#                              "fish", "POM", "periphyton", "filamentous", "moss",
 #                              "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
 #                                                               11, 7, 9, 14))
 #   legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
@@ -1784,7 +1784,7 @@ legend("bottomleft", legend=c("small forested", "med forested", "large forested"
 #   legend("bottom", legend=c("gray cross = lake area", "gray circle = watershedA:lakeA"))
 # }
 
-#notable covariates: CO2, CH4, 
+#notable covariates: CO2, CH4,
 
 #plot caddis d13c vs caddis d15n (should show inverse relationship).  (then color by lake type) and size by other covariates
 #until you find one that follows the trendline in either direction.
@@ -1805,8 +1805,8 @@ for(i in 3:length(clad.indexed.covariates[1,]))
 # points(clad.fig, "sites", pch=as.numeric(substr(row.names(tcal.asin.grouped),6,7)), col=as.numeric(substr(row.names(tcal.asin.grouped),5,5)))
 # arrows(0,0,clad.pca$rotation[,3]*5, clad.pca$rotation[,4]*5, col="black")
 # text(clad.pca$rotation[,3]*5.8, clad.pca$rotation[,4]*5.8, row.names(clad.pca$rotation))
-# legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
-#                            "fish", "POM", "periphyton", "filamentous", "moss", 
+# legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
+#                            "fish", "POM", "periphyton", "filamentous", "moss",
 #                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
 #                                                             11, 7, 9, 14))
 # legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
@@ -1821,17 +1821,17 @@ for(i in 1:10)
   if (substr(colnames(dist.data[clad.cols[i]]),5,5)==1)
   {
     plot(dist.data[,clad.cols[i]], type="l", ylab=colnames(dist.data[clad.cols[i]]), xlab="", col="black", xaxt="n", ylim=c(0,25))
-  }  
+  }
   else if (substr(colnames(dist.data[clad.cols[i]]),5,5)==2)
   {
     plot(dist.data[,clad.cols[i]], type="l", ylab=colnames(dist.data[clad.cols[i]]), xlab="", col="red", xaxt="n", ylim=c(0,25))
-  } 
+  }
   else if (substr(colnames(dist.data[clad.cols[i]]),5,5)==3)
   {
     plot(dist.data[,clad.cols[i]], type="l", ylab=colnames(dist.data[clad.cols[i]]), xlab="", col="green", xaxt="n", ylim=c(0,25))
-    axis(side=1, at=c(4,8,9,10,12,14,16,17,18,22,26,28,29,33,34,35,38,41,44,50,52,58), 
+    axis(side=1, at=c(4,8,9,10,12,14,16,17,18,22,26,28,29,33,34,35,38,41,44,50,52,58),
          labels=dist.data$FA_name[c(4,8,9,10,12,14,16,17,18,22,26,28,29,33,34,35,38,41,44,50,52,58)], las=2)
-    
+
   }
   else if (substr(colnames(dist.data[clad.cols[i]]),5,5)==4)
   {
@@ -1940,12 +1940,12 @@ structure<-pca.structure(prod.pca,tprod.asin.grouped,dim=7,cutoff=0.2)
 #plot PCA
 #first and second principal components (counterintuitive groupings)
 prod.fig<-ordiplot(prod.pca, choices=c(1,2), type="none", xlim=c(-6,3), ylim=c(-5,4), main="prod PC1 and 2")
-points(prod.fig, "sites", pch=as.numeric(substr(row.names(tprod.asin.grouped),6,7)), 
+points(prod.fig, "sites", pch=as.numeric(substr(row.names(tprod.asin.grouped),6,7)),
        col=as.numeric(substr(row.names(tprod.asin.grouped),5,5)))
 arrows(0,0,prod.pca$rotation[,1]*5, prod.pca$rotation[,2]*5, col="purple")
 text(prod.pca$rotation[,1]*5.8, prod.pca$rotation[,2]*5.8, row.names(prod.pca$rotation), col="purple")
-legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
-                           "fish", "POM", "periphyton", "filamentous", "moss", 
+legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
+                           "fish", "POM", "periphyton", "filamentous", "moss",
                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
                                                             11, 7, 9, 14))
 legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
@@ -1953,12 +1953,12 @@ legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"
 
 #first and second principal components (PC3 looks more like what I'd expect.)
 prod.fig<-ordiplot(prod.pca, choices=c(2,3), type="none", xlim=c(-6,3), ylim=c(-5,4), main="prod PC2 and 3")
-points(prod.fig, "sites", pch=as.numeric(substr(row.names(tprod.asin.grouped),6,7)), 
+points(prod.fig, "sites", pch=as.numeric(substr(row.names(tprod.asin.grouped),6,7)),
        col=as.numeric(substr(row.names(tprod.asin.grouped),5,5)))
 arrows(0,0,prod.pca$rotation[,2]*5, prod.pca$rotation[,3]*5, col="purple")
 text(prod.pca$rotation[,2]*5.8, prod.pca$rotation[,3]*5.8, row.names(prod.pca$rotation), col="purple")
-legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly", 
-                           "fish", "POM", "periphyton", "filamentous", "moss", 
+legend("topleft", legend=c("calanoida", "cladocera", "chaoborus", "caddisfly",
+                           "fish", "POM", "periphyton", "filamentous", "moss",
                            "soil", "terrest. plant"), pch=c(20, 1, 17, 3, 15, 8, 4,
                                                             11, 7, 9, 14))
 legend("bottomleft", legend=c("puddles", "high", "milk+clear", "big", "combined"),
@@ -1972,7 +1972,7 @@ library(NbClust)
 
 hclus.table <-
   function(x){
-    
+
     z1<-x$dist.method
     z2<-x$method
     z3<-seq(length(x$labels)-1,1)
@@ -1987,11 +1987,11 @@ data.trans <-
   function(x,method,var='',exp=1,outfile='',
            plot=TRUE,save.plot=FALSE,col.hist='blue',col.line='black',
            las=1,lab=c(5,5,4),...){
-    
+
     if(plot==TRUE){
       old.par<-par(no.readonly=TRUE)
     }
-    
+
     if(!var==''){
       y1<-subset(x,select=eval(parse(text=var))) #select variables to summarize
       y2<-subset(x,select=-eval(parse(text=var))) #select remaining variables
@@ -2005,7 +2005,7 @@ data.trans <-
 
 hclus.cophenetic <-
   function(d,hclus,fit='lm',...){
-    
+
     old.par<-par(no.readonly=TRUE)
     d.coph<-cophenetic(hclus)
     r<-round(cor(d,d.coph),2)
@@ -2024,14 +2024,14 @@ hclus.cophenetic <-
     else if(fit=='qls'){
       abline(lqs(d.coph~d),col='blue')
     }
-    
+
     par(old.par)
     return(r)
   }
 
 hclus.scree <-
   function(x,...){
-    
+
     old.par<-par(no.readonly=TRUE)
     z1<-seq(length(x$height),1)
     z<-as.data.frame(cbind(z1,sort(x$height)))
@@ -2071,11 +2071,11 @@ hca1.grouped<-rbind(short_SAFA, iSAFA_etc, other_MUFA, LIN, other_n3_n6_PUFA, OA
 #                ALA_SDA, long_SAFA, EPA_DHA)
 
 #make more descriptive column names
-colnames(hca1.grouped)<-c("cal C", "cal O", "cal Z", "cal Mirror", "cal Y025", "cal Y015", "cal L", "cal Clear", 
-                          "cal Morg", "cal Milk", "clad Clear", "clad Morg", "clad O", "clad L", "clad C", "clad Z", 
-                          "caddis C", "caddis C2", "caddis Milk", "caddis Mirror", "caddis Morg", "caddis Morg2", 
-                          "caddis NoName", "caddis Y015", "caddis Y025", "caddis Z", "caddis Clear", "chaob Clear", 
-                          "chaob Milk", "fish Mirror", "fish Mirror2", "POM", "peri", "filamentous", "moss", "soil", 
+colnames(hca1.grouped)<-c("cal C", "cal O", "cal Z", "cal Mirror", "cal Y025", "cal Y015", "cal L", "cal Clear",
+                          "cal Morg", "cal Milk", "clad Clear", "clad Morg", "clad O", "clad L", "clad C", "clad Z",
+                          "caddis C", "caddis C2", "caddis Milk", "caddis Mirror", "caddis Morg", "caddis Morg2",
+                          "caddis NoName", "caddis Y015", "caddis Y025", "caddis Z", "caddis Clear", "chaob Clear",
+                          "chaob Milk", "fish Mirror", "fish Mirror2", "POM", "peri", "filamentous", "moss", "soil",
                           "plant")
 
 #modify the data
@@ -2094,7 +2094,7 @@ for (i in 1:length(hca1.grouped[1,]))
   }
 }
 
-#the HCA - seems like the order of these steps is wonky.  should be 1. find correct number of clusters with NbClust, 
+#the HCA - seems like the order of these steps is wonky.  should be 1. find correct number of clusters with NbClust,
 #2. plot, 3. highlight that number of clusters
 #create dissimilarity matrix
 hc1.distmat<-vegdist(t(hca1.asin.grouped), method="euclidean")
@@ -2123,8 +2123,8 @@ hc1.bootstrap<-pvclust(hca1.asin.grouped, method.hclust="complete", method.dist=
 #plot to highlight significant clusters (red and green are different measurements of significance. use red)
 plot(hc1.bootstrap, hang=-1)
 pvrect(hc1.bootstrap, alpha=0.99)
-#now you have to find the "optimal" number of clusters.  This function incorporates 30 different indices.  Majority rule is fine to go by, but 
-#CH, Duda, Cindex, Gamma, and Beale were shown to perform best by milligan and cooper 1985.  
+#now you have to find the "optimal" number of clusters.  This function incorporates 30 different indices.  Majority rule is fine to go by, but
+#CH, Duda, Cindex, Gamma, and Beale were shown to perform best by milligan and cooper 1985.
 NbClust(t(hca1.asin.grouped), distance="euclidean", min.nc=2, max.nc=10, method="complete")
 par(mfrow=c(1,1))
 

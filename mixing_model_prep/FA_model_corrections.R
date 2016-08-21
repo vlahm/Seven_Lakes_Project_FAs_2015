@@ -1,13 +1,26 @@
-# setwd("C:/Users/Mike/Dropbox/Grad/Projects/Thesis/Seven Lakes Project 2014/Data/FA/mixing_model_prep")
-setwd("~/Dropbox/Grad/Projects/Thesis/Seven Lakes Project 2014/Data/FA/mixing_model_prep")
+
+#setup####
+setwd("C:/Users/Mike/Dropbox/Grad/Projects/Thesis/Seven Lakes Project 2014/Data/FA/mixing_model_prep")
+# setwd("~/Dropbox/Grad/Projects/Thesis/Seven Lakes Project 2014/Data/FA/mixing_model_prep")
+
 rm(list=ls())
 # library(graph)
 # library(Rgraphviz)
-library(fastinR)
+# library(fastinR)
 library(knitr)
 library(stringr)
 library(rjags)
 # library(rgr)
+
+gmean <- function (x) {
+    if (is.null(dim(x))) {
+        exp(mean(log(x)))
+    } else {
+        t(apply(x, 1, function(y) {
+            exp(mean(log(x)))
+        }))
+    }
+}
 
 #FA conversion coefficients####
 
@@ -35,7 +48,7 @@ rownames(pred_data) <- rep(c('peri_pred', 'phyto_pred', 'terr_pred'), each=10)
 colnames(prey_data) <- rownames(data)
 colnames(pred_data) <- rownames(data)
 
-typevec <- rep(c('peri', 'phyto', 'terr'), each=10)
+typevec <- rep(1:3, each=10)
 ntypes <- 3
 nsamp <- 30
 nfas <- nrow(data)
@@ -63,8 +76,7 @@ for (i in 1:nfas) {
 }
 
 # combine FA profiles by prey type and apply closure (sum-to-1) operation
-gmean <- function(x) if (is.null(dim(x))) {exp(mean(log(x)))} else { t(apply(x,1,
-         function(y){exp(mean(log(x)))}))}
+
 agg_profiles <- aggregate(prey_data, by=list(typevec), gmean)
 agg_samp_types <- as.character(agg_profiles[,1])
 agg_profiles <- agg_profiles[,-1]
@@ -77,16 +89,19 @@ for(i in 1:nrow(agg_profiles)){
 }
 
 # for Wishart hyperprior on conv_coef
-R <- diag(0.01, nfas)
+# R <- diag(0.01, nfas)
 
 #assemble and run model
-data <- list('nsamp'=nsamp, 'nfas'=nfas, 'ntypes'=ntypes, 'typevec'=typevec, 'R'=R,
+data <- list('nsamp'=nsamp, 'nfas'=nfas, 'typevec'=typevec,
              'prey_gmean'=closed_profiles, 'prey_data'=prey_data, 'pred_data'=pred_data)
 
 mod <- jags.model("FA_conversion_coeffs.txt", n.chains = 3, data=data)
-xupdate(mod, 10000)
-out <- coda.samples(model=mod, variable.names=c('conv_coef', 'prey_est', 'pred_est'),
+update(mod, 10000)
+out <- coda.samples(model=mod, variable.names=c('conv_coef'),#, 'prey_est', 'pred_est'),
                          n.iter = 1e5, thin = 100)
+
+######continue editing from this point
+############################
 
 plot(out)
 crosscorr.plot(out)
