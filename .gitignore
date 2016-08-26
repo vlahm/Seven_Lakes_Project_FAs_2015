@@ -3,8 +3,10 @@
 /GC readouts/
 *.Rhistory
 /Misc/
-/PCA_arrangements/
 /Mixing_Models_obsolete/
-/daphnia_culturing/
 /ultimate_spreadsheet_POMandPeriCombinedLakes.csv.lnk
 *.RData
+*.tmp
+*.doc
+*.jpg
+*.db
