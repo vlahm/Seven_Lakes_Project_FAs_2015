@@ -1,6 +1,6 @@
 rm(list=ls())
 #first attempt with binomial data - not enough df ####
-data <- read.csv("C:\\Users\\Mike\\Desktop\\Grad\\Projects\\Thesis\\Seven Lakes Project 2014\\Data\\FA\\daphnia_culturing\\for_analysis.csv",
+data <- read.csv("C:/Users/Mike/git/seven_lakes/FA/daphnia_culturing/for_analysis.csv")
                  row.names=1)
 trt <- factor(rownames(data))
 
@@ -22,7 +22,7 @@ fstat1<-(anodev1$Dev[2]/anodev1$Df[2])/(anodev1[2,"Resid. Dev"]/anodev1[2,"Resid
 
 #second attempt with bernoulli data ####
 #i artificially added one survivor to each of the raw treatments just so the model would work
-data_bern <- read.csv("C:\\Users\\Mike\\Desktop\\Grad\\Projects\\Thesis\\Seven Lakes Project 2014\\Data\\FA\\daphnia_culturing\\for_analysis_bernoulli.csv")
+data_bern <- read.csv("C:/Users/Mike/git/seven_lakes/FA/daphnia_culturing/for_analysis.csv/for_analysis_bernoulli.csv")
 
 mod1 <- glm(cbind(mort,harv)~trt, family=binomial(link="cloglog"), data=data_bern)
 anodev1<-anova(mod1); anodev1
